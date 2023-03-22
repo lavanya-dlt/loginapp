@@ -3,6 +3,25 @@
 <style>
 @import url('./fonts/appfonts.css');
 
+body::-webkit-scrollbar {
+    width: 0.5em !important;
+    height: 0.5em !important;
+    scroll-behavior: smooth !important;
+}
+
+body::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3) !important;
+    margin: 5em;
+    border-radius: 1em !important;
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: darkgrey !important;
+    border-radius: 1em !important;
+    background-clip: padding-box;
+}
+
 body {
 	margin: 0; 
 	padding: 0; 
@@ -39,7 +58,7 @@ body::after {
 div#header {
 	display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: space-around;
     align-items: center;
 	margin: 1em;
 	width: calc(100% - 2em);
@@ -47,7 +66,7 @@ div#header {
 }
 span#imgheader {text-align: center;}
 img.logo {
-	height: 25px;
+	height: 2.2em;
 	cursor: pointer;
 }
 
@@ -118,7 +137,7 @@ div.lgbox > span {
 </style>
 {{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_START}}}
 	div#maincontent {flex-direction: column;}
-	div#header {justify-content: space-around;}
+	div#header {justify-content: space-around; height: 6em;}
 	span#signin {text-align: center;}
 	.lgbox {padding: 1em; box-shadow: none;}
 {{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_END}}}
@@ -142,7 +161,7 @@ div.lgbox > span {
 <div id="bodydiv">
 <div id="header">
 <span id="imgheader">
-	<img class="logo" src="./img/logo.png" onclick="window.open('http://teleworkr.com', '_blank')"></img>
+	<img class="logo" src="./img/logo.svg" onclick="window.open(APP_CONSTANTS.APP_ABOUT_URL, '_blank')"></img>
 </span>
 </div>
 
@@ -150,7 +169,7 @@ div.lgbox > span {
 <div class="advtextbox">
 	<h1>{{i18n.logintagline}}</h1>
 	<h2>{{i18n.loginsubtag}}</h2>
-	<p onclick="window.open('http://teleworkr.com', '_blank')">{{i18n.learn}}</p>
+	<p onclick="window.open(APP_CONSTANTS.APP_ABOUT_URL, '_blank')">{{i18n.learn}}</p>
 </div>
 
 <div class="lgbox">
@@ -165,8 +184,6 @@ div.lgbox > span {
 	<span class="langsel" onclick="language.changeLanguage('en')">English</span>&nbsp;&nbsp;
 	<span class="langsel" onclick="language.changeLanguage('hi')">हिंदी</span>&nbsp;&nbsp;
 	<span class="langsel" onclick="language.changeLanguage('ja')">日本語</span>
-	<span class="langsel" onclick="language.changeLanguage('th')">&nbsp;ภาษาไทย</span>
-	<span class="langsel" onclick="language.changeLanguage('zh')">中文</span>
 </div>	
 </div>
 

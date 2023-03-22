@@ -3,6 +3,7 @@
  * License: See enclosed license.txt file.
  */
 
+import {util} from "/framework/js/util.mjs";
 import {router} from "/framework/js/router.mjs";
 import {session} from "/framework/js/session.mjs";
 import {securityguard} from "/framework/js/securityguard.mjs";
@@ -24,19 +25,16 @@ const init = async hostname => {
 
 	apiman.registerAPIKeys(APP_CONSTANTS.API_KEYS, APP_CONSTANTS.KEY_HEADER); 
 	const API_GETREMOTELOG = APP_CONSTANTS.API_PATH+"/getremotelog", API_REMOTELOG = APP_CONSTANTS.API_PATH+"/log";
-	const remoteLogResponse = (await apiman.rest(API_GETREMOTELOG, "GET", {})), remoteLogFlag = remoteLogResponse?remoteLogResponse.remote_log:false;
+	const remoteLogResponse = (await apiman.rest(API_GETREMOTELOG, "GET")), remoteLogFlag = remoteLogResponse?remoteLogResponse.remote_log:false;
 	LOG.setRemote(remoteLogFlag, API_REMOTELOG);
 }
 
 const main = async (desiredURL, desiredData) => {
-	await _addPageLoadInterceptors(); await _readConfig();
-	const decodedURL = new URL(desiredURL || router.decodeURL(window.location.href)), justURL = decodedURL.href.split("?")[0];
+	await _addPageLoadInterceptors(); await _readConfig(); await _registerComponents();
+	const decodedURL = new URL(desiredURL || router.decodeURL(window.location.href)), justURL = util.baseURL(decodedURL);
 
-	if (justURL == APP_CONSTANTS.INDEX_HTML) {
-		const params = decodedURL.searchParams; const test = params.get("join");
-		if (test || test == "") router.loadPage(`${APP_CONSTANTS.LOGIN_ROOM_HTML}?room=${test}&name=${params.get("name")||""}&pass=${params.get("pass")||""}`);
-		else router.loadPage(APP_CONSTANTS.REGISTER_HTML);
-	} else if (securityguard.isAllowed(justURL)) {
+	if (justURL == APP_CONSTANTS.INDEX_HTML) router.loadPage(APP_CONSTANTS.REGISTER_HTML);
+	else if (securityguard.isAllowed(justURL)) {
 		if (router.getLastSessionURL() && (decodedURL.toString() == router.getLastSessionURL().toString())) router.reload();
 		else router.loadPage(decodedURL.href, desiredData);
 	} else router.loadPage(APP_CONSTANTS.REGISTER_HTML);
@@ -51,6 +49,9 @@ async function _readConfig() {
 	const conf = await(await fetch(`${APP_CONSTANTS.APP_PATH}/conf/app.json`)).json();
 	for (const key of Object.keys(conf)) APP_CONSTANTS[key] = conf[key];
 }
+
+const _registerComponents = async _ => { for (const component of APP_CONSTANTS.COMPONENTS) 
+	await import(`${APP_CONSTANTS.COMPONENTS_PATH}/${component}/${component}.mjs`); }
 
 async function _addPageLoadInterceptors() {
 	const interceptors = await(await fetch(`${APP_CONSTANTS.APP_PATH}/conf/pageLoadInterceptors.json`)).json();

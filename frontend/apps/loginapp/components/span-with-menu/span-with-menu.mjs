@@ -6,48 +6,66 @@ import {util} from "/framework/js/util.mjs";
 import {monkshu_component} from "/framework/js/monkshu_component.mjs";
 
 const COMPONENT_PATH = util.getModulePath(import.meta);
-let conf;
 
-async function initialRender(element) {
-	const data = {}; data.content = _getContent(element);
-	if (element.getAttribute("styleBody")) data.styleBody = `<style>${await span_with_menu.getAttrValue(element, "styleBody")}</style>`;
-	const menuItems = element.children; if (menuItems && menuItems.length) {
-		data.menuitems = [];
-		for (const menuItem of menuItems) if (menuItem.nodeType == 1 && menuItem.tagName.toUpperCase() == "MENU-ITEM")
-			data.menuitems.push({entry: menuItem.getAttribute("label")||menuItem.innerText, onclick: menuItem.getAttribute("onclick")});
-	}
-	if (util.parseBoolean(element.getAttribute("bottommenu"))) data.risesFromBottom = true;
+async function initialRender(host) {
+	new MutationObserver(_ => _render(host)).observe(host, {subtree: true, attributes: true});
+	_render(host);
+}
 
-	conf = await $$.requireJSON(`${COMPONENT_PATH}/conf/config.json`);
-	for (const key in conf) data[key] = conf[key];
+function hideMenu(element) {
+	const shadowRoot = span_with_menu.getShadowRootByContainedElement(element);
+	const memory = span_with_menu.getMemoryByContainedElement(element);
+	if (!memory.menuOpen) return;
 
-	span_with_menu.bindData(data, element.id);
-
-	const memory = span_with_menu.getMemory(element.id);
- 
-	document.addEventListener("click", _e => {
-	   if (!memory.menuOpen) return;
-	   if (memory.ignoreClick) {memory.ignoreClick = false; return;}
- 
-	   const contextMenu = span_with_menu.getShadowRootByHostId(element.getAttribute("id")).querySelector("div#menu");
-	   contextMenu.classList.remove("visible");
-	   memory.menuOpen = false;
-	});
- }
+	const contextMenu = shadowRoot.querySelector("div#menu"); contextMenu.classList.remove("visible");
+	memory.menuOpen = false;
+}
 
 function showMenu(element) {
 	const shadowRoot = span_with_menu.getShadowRootByContainedElement(element);
-	const memID = span_with_menu.getHostElementID(element); const memory = span_with_menu.getMemory(memID);
+	const memory = span_with_menu.getMemoryByContainedElement(element);
 	if (memory.menuOpen == true) return;
 
 	const contextMenu = shadowRoot.querySelector("div#menu");
 	contextMenu.classList.add("visible");
-	memory.menuOpen = true; memory.ignoreClick = true;
+	memory.menuOpen = true; 
 }
 
-function _getContent(element) {
+function toggleMenu(element) {
+	const memory = span_with_menu.getMemoryByContainedElement(element);
+	if (memory.menuOpen) hideMenu(element); else showMenu(element);
+}
+
+function doAction(element, id) {
+	const dataThisElement = span_with_menu.getDataByContainedElement(element);
+	Function(dataThisElement.menuitems[id].onclick)();
+	hideMenu(element);
+}
+
+async function _render(host) {
+	const data = await _createData(host);
+	span_with_menu.bindData(data, host.id);
+}
+
+async function _createData(host) {
+	const data = {}; data.content = _getContent(host);
+	if (host.getAttribute("styleBody")) data.styleBody = `<style>${await span_with_menu.getAttrValue(host, "styleBody")}</style>`;
+	const menuItems = host.children; if (menuItems && menuItems.length) {
+		data.menuitems = [];
+		for (const menuItem of menuItems) if (menuItem.nodeType == 1 && menuItem.tagName.toUpperCase() == "MENU-ITEM")
+			data.menuitems.push({ id: data.menuitems.length, entry: menuItem.getAttribute("label")||menuItem.innerText, 
+				onclick: menuItem.getAttribute("onclick"), icon: menuItem.getAttribute("icon")? {
+					icon: menuItem.getAttribute("icon"), iconhover: menuItem.getAttribute("iconhover")||menuItem.getAttribute("icon")
+				}:undefined });
+	}
+	if (util.parseBoolean(host.getAttribute("bottommenu"))) data.risesFromBottom = true;
+	if ($$.isMobile()) data.isMobile = true;
+	return data;
+}
+
+function _getContent(host) {
 	let content = "";
-	for (const child of element.childNodes) {
+	for (const child of host.childNodes) {
 		if (child.nodeValue && child.nodeValue.trim() != "") content += util.escapeHTML(child.nodeValue.trim());
 		if (child.outerHTML && child.outerHTML.trim() != "" && child.tagName.toUpperCase() != "MENU-ITEM") content += child.outerHTML.trim();
 	}
@@ -55,5 +73,5 @@ function _getContent(element) {
 }
 
 const trueWebComponentMode = true;	// making this false renders the component without using Shadow DOM
-export const span_with_menu = {trueWebComponentMode, initialRender, showMenu}
-monkshu_component.register("span-with-menu", `${APP_CONSTANTS.APP_PATH}/components/span-with-menu/span-with-menu.html`, span_with_menu);
+export const span_with_menu = {trueWebComponentMode, initialRender, showMenu, hideMenu, toggleMenu, doAction}
+monkshu_component.register("span-with-menu", `${COMPONENT_PATH}/span-with-menu.html`, span_with_menu);

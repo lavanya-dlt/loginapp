@@ -60,7 +60,12 @@ span#desktopheader {
 	margin: 1em 2em 0 2em;
 }
 
-span#desktopheader > img#textlogo {width: 6em;}
+img#textlogo {height: 3em; cursor: pointer;}
+
+dialog-box#dialog {
+	z-index: 51;
+	position: absolute;
+}
 
 span#desktopheader > span#rightheader {
 	height: 100%;
@@ -69,12 +74,11 @@ span#desktopheader > span#rightheader {
     align-items: center;
 	width: 100%;
     justify-content: space-between;
+	z-index: 50;
 }
 
-span#desktopheader > span#rightheader > span#signoff > img {
-	height: 2em;
-	width: 2em;
-}
+span#desktopheader > span#rightheader > span#signoff > img,  span#desktopheader > span#rightheader > span#refresh > img, 
+	span#desktopheader > span#rightheader > img { height: 2em; }
 
 span#desktopheader > span#rightheader > span#greeting {
 	display: flex;
@@ -88,33 +92,14 @@ span#desktopheader > span#rightheader > span#greeting > span-with-menu#status.wo
 span#desktopheader > span#rightheader > span#greeting > span-with-menu#status.break {box-shadow: 1px 1px 20px -3px #bdbd00}
 span#desktopheader > span#rightheader > span#greeting > span-with-menu#status.offline {box-shadow: 1px 1px 20px -3px #cc0000}
 span#desktopheader > span#rightheader > span#greeting > span#name {margin-left: 1.5em;}
-span#desktopheader > span#rightheader > span#search {
-	width: 50%;
-    position: relative;
-}
-span#desktopheader > span#rightheader > span#search > input#searchtext {
-	padding: 0.8em;
-    outline: none;
-    border: 1px solid #4FB4ED;
-    border-radius: 0.5em;
-    width: 100%;
-    padding-left: 3em;
-	font-size: medium;
-	color: #444444;
-}
-span#desktopheader > span#rightheader > span#search > img#searchimg {
-	position: absolute;
-    margin-left: 5px;
-	height: 80%;
-	top: 10%;
-}
 
 div#maincontent {
 	background-color: transparent;
-	height: calc(100% - 9.6em);
-	margin: 1em 5em 2.5em 5em;
+	height: calc(100% - 7em);
+    margin: 1em 1em 0em 1em;
 	display: flex;
 	flex-direction: column;
+	overflow: hidden;
 }
 
 div#lowercontent {
@@ -139,13 +124,18 @@ span#mobilefooter {
     box-sizing: border-box;
     justify-content: space-between;
 }
+
+span#mobilefooter > img {
+	width: 2.5em;
+	height: 2.5em;
+}
 </style>
 {{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_START}}}
 	body, html {min-width: 0; min-height: 0;}
-	span#desktopheader {margin: 0 1em 0 1em; width: calc(100% - 2em);}
+	span#desktopheader {display: none;}
 	span#rightheader {width: 100% !important;}
 	img#textlogo, span#greeting, span-with-menu#gear, span#signoff {display: none !important;}
-	div#maincontent {height: auto; margin: 0; padding: 1em 1em 0em 1em;}
+	div#maincontent {height: calc(100% - 5em);; margin: 0; padding: 1em 1em 0em 1em;}
 	div#lowercontent {height: auto; flex-direction: column-reverse;}
 	span#mobilefooter {display: flex;}
 {{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_END}}}
@@ -159,9 +149,8 @@ span#mobilefooter {
 	<link href="./img/favicon.ico" rel="icon" type="image/x-icon">
 
 	<script type="module">
-	import {main} from "./js/main.mjs"; monkshu_env.apps[APP_CONSTANTS.APP_NAME].main = main; main.showLoginMessages();
-	import "./components/dialog-box/dialog-box.mjs";
-	import "./components/span-with-menu/span-with-menu.mjs";
+	import {main} from "./js/main.mjs"; monkshu_env.apps[APP_CONSTANTS.APP_NAME].main = main; 
+	window.addEventListener("DOMContentLoaded", _ => setTimeout(_=>main.showLoginMessages(), 200));
 	</script>
 		
 	<title>{{i18n.Title}}</title>
@@ -170,32 +159,42 @@ span#mobilefooter {
 <body style="margin: 0%">
 <span id="desktopheader">
 	<span id="rightheader">
-	<img id="textlogo" src="./img/textlogo.svg">
+	<img id="textlogo" src="./img/logomainpage.svg" onclick="window.open(APP_CONSTANTS.APP_ABOUT_URL, '_blank')">
 	<span id="greeting">
 	<span><img src="./img/person.svg"></span>
 	<span id="name">{{i18n.Hi}} {{#_org_monkshu_session}}username{{/_org_monkshu_session}}!</span>
 	</span>
+	<span id="refresh"><img src="./img/reload.svg" onclick="location.reload()"></span>
 	<span-with-menu id="gear" styleBody="url(./pages/menu.stylebody.css)"><img src="./img/settings.svg" style="height: 2em;width: 2em;vertical-align: middle;">
-		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.changePassword(this)" label="{{i18n.ChangePassword}}"></menu-item>
-		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.showOTPQRCode(this)" label="{{i18n.ChangePhone}}"></menu-item>
-		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.changeProfile(this)" label="{{i18n.ChangeProfile}}"></menu-item>
-		{{#admin}}<menu-item onclick="monkshu_env.frameworklibs.router.navigate(APP_CONSTANTS.MANAGE_HTML)" label="{{i18n.ManageUsers}}"></menu-item>{{/admin}}
+		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.changePassword(this)" 
+			label="{{i18n.ChangePassword}}" icon="./img/changepassword_menu.svg"></menu-item>
+		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.showOTPQRCode(this)" 
+			label="{{i18n.ChangePhone}}" icon="./img/changephone_menu.svg"></menu-item>
+		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.changeProfile(this)" 
+			label="{{i18n.ChangeProfile}}" icon="./img/changeprofile_menu.svg"></menu-item>
+		{{#admin}}<menu-item onclick="monkshu_env.frameworklibs.router.navigate(APP_CONSTANTS.MANAGE_HTML)" 
+			label="{{i18n.ManageUsers}}" icon="./img/manageusers_menu.svg"></menu-item>{{/admin}}
 	</span-with-menu>
 	<span id="signoff"><img src="./img/poweroff.svg" onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.logoutClicked()"></span>
 	</span>
 </span>
 
 <div id="maincontent">
-	<!-- Add main content here -->
+	
 </div>
 
 <span id="mobilefooter">
 	<img src="./img/mobilefooter_home.svg" onclick="monkshu_env.frameworklibs.router.navigate(APP_CONSTANTS.MAIN_HTML)">
+	<img src="./img/mobilefooter_reload.svg" onclick="location.reload()">
 	<span-with-menu id="gearmobile" bottommenu="true" styleBody="url(./pages/menu.stylebody.css)"><img src="./img/mobilefooter_settings.svg">
-		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.changePassword(this)" label="{{i18n.ChangePassword}}"></menu-item>
-		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.showOTPQRCode(this)" label="{{i18n.ChangePhone}}"></menu-item>
-		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.changeProfile(this)" label="{{i18n.ChangeProfile}}"></menu-item>
-		{{#admin}}<menu-item onclick="monkshu_env.frameworklibs.router.navigate(APP_CONSTANTS.MANAGE_HTML)" label="{{i18n.ManageUsers}}"></menu-item>{{/admin}}
+		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.changePassword(this)" 
+			label="{{i18n.ChangePassword}}" icon="./img/changepassword_menu.svg"></menu-item>
+		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.showOTPQRCode(this)" 
+			label="{{i18n.ChangePhone}}" icon="./img/changephone_menu.svg"></menu-item>
+		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.changeProfile(this)" 
+			label="{{i18n.ChangeProfile}}" icon="./img/changeprofile_menu.svg"></menu-item>
+		{{#admin}}<menu-item onclick="monkshu_env.frameworklibs.router.navigate(APP_CONSTANTS.MANAGE_HTML)" 
+			label="{{i18n.ManageUsers}}" icon="./img/manageusers_menu.svg"></menu-item>{{/admin}}
 	</span-with-menu>
 	<img src="./img/mobilefooter_logout.svg" onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.logoutClicked()">
 </span>

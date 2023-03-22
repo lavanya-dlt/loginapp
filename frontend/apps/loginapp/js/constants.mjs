@@ -1,6 +1,6 @@
 /* 
  * (C) 2015 TekMonks. All rights reserved.
- * License: See enclosed license.txt file.
+ * License: MIT - see enclosed license.txt file.
  */
 const FRONTEND = "https://{{{hostname}}}";
 const BACKEND = "https://{{{hostname}}}:9090";
@@ -9,16 +9,17 @@ const APP_PATH = `${FRONTEND}/apps/${APP_NAME}`;
 const API_PATH = `${BACKEND}/apps/${APP_NAME}`;
 const COMPONENTS_PATH = `${FRONTEND}/apps/${APP_NAME}/components`;
 
-export const APP_CONSTANTS = {  // application.mjs injects all the settings from conf/app.json into here as well
-    FRONTEND, BACKEND, APP_PATH, API_PATH, APP_NAME, COMPONENTS_PATH,
-    INDEX_HTML: APP_PATH+"/index.html",
+export const APP_CONSTANTS = {
+    FRONTEND, BACKEND, APP_PATH, APP_NAME, COMPONENTS_PATH, API_PATH,
     MAIN_HTML: APP_PATH+"/main.html",
     LOGIN_HTML: APP_PATH+"/login.html",
+    INDEX_HTML: APP_PATH+"/index.html",
     REGISTER_HTML: APP_PATH+"/register.html",
     LOGIN_ROOM_HTML: APP_PATH+"/loginroom.html",
     ERROR_HTML: APP_PATH+"/error.html",
     MANAGE_HTML: APP_PATH+"/manage.html",
-    JOIN_HTML: APP_PATH+"/join.html",
+    VERIFY_HTML: APP_PATH+"/verify.html",
+    DOWNLOAD_HTML: APP_PATH+"/download.html",
 
     DIALOGS_PATH: APP_PATH+"/dialogs",
 
@@ -30,6 +31,8 @@ export const APP_CONSTANTS = {  // application.mjs injects all the settings from
     API_RESET: API_PATH+"/resetuser",
     API_REGISTER: API_PATH+"/register",
     API_UPDATE: API_PATH+"/updateuser",
+    API_VERIFY_EMAIL: API_PATH+"/verifyemail",
+
     API_STATUS: API_PATH+"/setstatus",
     API_CHANGEPW: API_PATH+"/changepassword",
     API_VALIDATE_TOTP: API_PATH+"/validatetotp",
@@ -40,14 +43,16 @@ export const APP_CONSTANTS = {  // application.mjs injects all the settings from
     TIMEOUT: 600000,
     USERNAME: "username",
     USERORG: "userorg",
+    USERORGDOMAIN: "userorgdomain",
+    USER_NEEDS_VERIFICATION: "userneedsverification",
 
     USER_ROLE: "user",
     GUEST_ROLE: "guest",
     ADMIN_ROLE: "admin",
     PERMISSIONS_MAP: {
-        user:[window.location.origin, APP_PATH+"/index.html", APP_PATH+"/error.html", APP_PATH+"/main.html", APP_PATH+"/reset.html", APP_PATH+"/initiallogin.html", APP_PATH+"/register.html", APP_PATH+"/loginroom.html", APP_PATH+"/login.html", $$.MONKSHU_CONSTANTS.ERROR_HTML], 
-        admin:[window.location.origin, APP_PATH+"/index.html", APP_PATH+"/error.html", APP_PATH+"/main.html", APP_PATH+"/reset.html", APP_PATH+"/initiallogin.html", APP_PATH+"/register.html", APP_PATH+"/loginroom.html", APP_PATH+"/login.html", APP_PATH+"/manage.html", $$.MONKSHU_CONSTANTS.ERROR_HTML],
-        guest:[window.location.origin, APP_PATH+"/index.html", APP_PATH+"/error.html", APP_PATH+"/reset.html", APP_PATH+"/initiallogin.html", APP_PATH+"/register.html", APP_PATH+"/login.html", APP_PATH+"/loginroom.html", $$.MONKSHU_CONSTANTS.ERROR_HTML]
+        user:[window.location.origin, APP_PATH+"/index.html", APP_PATH+"/download.html", APP_PATH+"/error.html", APP_PATH+"/verify.html", APP_PATH+"/main.html", APP_PATH+"/reset.html", APP_PATH+"/initiallogin.html", APP_PATH+"/register.html", APP_PATH+"/notapproved.html", APP_PATH+"/loginroom.html", APP_PATH+"/login.html", $$.MONKSHU_CONSTANTS.ERROR_HTML], 
+        admin:[window.location.origin, APP_PATH+"/index.html", APP_PATH+"/download.html", APP_PATH+"/error.html", APP_PATH+"/verify.html", APP_PATH+"/main.html", APP_PATH+"/reset.html", APP_PATH+"/initiallogin.html", APP_PATH+"/register.html", APP_PATH+"/notapproved.html", APP_PATH+"/loginroom.html", APP_PATH+"/login.html", APP_PATH+"/manage.html", $$.MONKSHU_CONSTANTS.ERROR_HTML],
+        guest:[window.location.origin, APP_PATH+"/index.html", APP_PATH+"/download.html", APP_PATH+"/error.html", APP_PATH+"/verify.html", APP_PATH+"/reset.html", APP_PATH+"/initiallogin.html", APP_PATH+"/register.html", APP_PATH+"/notapproved.html", APP_PATH+"/login.html", APP_PATH+"/loginroom.html", $$.MONKSHU_CONSTANTS.ERROR_HTML]
     },
 
     API_KEYS: {"*":"fheiwu98237hjief8923ydewjidw834284hwqdnejwr79389"},

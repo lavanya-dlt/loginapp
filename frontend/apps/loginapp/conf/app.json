@@ -6,5 +6,7 @@
     "MOBILE_MEDIA_QUERY_LANDSCAPE_START": "<style>@media only screen and (max-width: 959px) and (orientation: landscape) {",
     "MOBILE_MEDIA_QUERY_LANDSCAPE_END": "}</style>",
     "MOBILE_MEDIA_QUERY_PORTRAIT_START": "<style>@media only screen and (max-width: 959px) and (orientation: portrait) {",
-    "MOBILE_MEDIA_QUERY_PORTRAIT_END": "}</style>"
+    "MOBILE_MEDIA_QUERY_PORTRAIT_END": "}</style>",
+    "COMPONENTS": ["dialog-box", "login-box", "password-box", "register-box", "span-with-menu", "user-manager"],
+    "APP_ABOUT_URL": "https://tekmonks.com/"
 }

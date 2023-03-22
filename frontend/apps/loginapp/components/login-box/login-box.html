@@ -58,12 +58,15 @@ div.container {
     background-color: #ffffff;
 }
 
-span#notifier {
+span#errorPassword,  span#errorMissingID, span#errorOTP, span#errorGeneric, span#errorDomain {
     color: #e40000;
     padding: 0;
     margin: 0;
     display: none;
 }
+
+span#errorPassword.visible, span#errorMissingID.visible, span#errorOTP.visible, span#errorGeneric.visible, 
+    span#errorDomain.visible {display: flex; flex-direction: column;}
 
 span#notifier2 {
     color: #003de4;
@@ -72,21 +75,37 @@ span#notifier2 {
     display: none;
 }
 
-span#notifier>span:hover {
+span#notifier3 {
+    color: #e40000;
+    padding: 0;
+    margin: 0;
+    display: none;
+}
+
+span#notifier2.visible, span#notifier3.visible {display: inline;}
+
+span#resetaccount:hover {
     text-decoration: underline;
     cursor: default;
 }
-</style>
 
-<script type="module">
-    import {password_box} from "./components/password-box/password-box.mjs"; 
-</script>
+span#spinner {visibility: hidden;}
+span#spinner.visible {visibility: visible;}
+img#spinner {height: 2em; width: 2em;}
+</style>
 
 {{{styleBody}}}
 
 <div id="container">
-<span id="notifier">{{i18n.BadLogin}}<span onclick="monkshu_env.components['login-box'].resetAccount(this)">{{i18n.LoginReset}}</span></span>
+<span id="errorPassword">{{i18n.BadLoginPassword}}&nbsp;<span id="resetaccount" onclick="monkshu_env.components['login-box'].resetAccount(this)">{{i18n.LoginReset}}</span></span>
+<span id="errorMissingID">{{i18n.BadLoginID}}</span>
+<span id="errorDomain">{{i18n.BadLoginDomain}}</span>
+<span id="errorOTP">{{i18n.BadLoginOTP}}&nbsp;<span id="resetaccount" onclick="monkshu_env.components['login-box'].resetAccount(this)">{{i18n.LoginReset}}</span></span>
+<span id="errorGeneric">{{i18n.BadLoginInternal}}</span>
+<span id="spinner"><img id="spinner" src="{{{COMPONENT_PATH}}}/img/spinner.svg"></span>
+
 <span id="notifier2">{{i18n.LoginWasReset}}</span>
+<span id="notifier3">{{i18n.LoginWasNotReset}}</span>
 <input type="text" id="userid" placeholder="{{i18n.UserID}}" 
     oninvalid="this.setCustomValidity('{{i18n.FillField}}')" oninput="setCustomValidity('')"
     required>

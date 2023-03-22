@@ -1,1 +1,0 @@
-insert into users (id, name, pwph, org, totpsec, role, approved) values ("test@test.com", "test", "test", "TekMonks", "test", "user", 0);

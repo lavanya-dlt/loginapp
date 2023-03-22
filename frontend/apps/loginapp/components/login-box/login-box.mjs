@@ -2,19 +2,22 @@
  * (C) 2018 TekMonks. All rights reserved.
  * License: See enclosed license file.
  */
+import {util} from "/framework/js/util.mjs";
 import {router} from "/framework/js/router.mjs";
+import {session} from "/framework/js/session.mjs";
 import {loginmanager} from "../../js/loginmanager.mjs";
+import {securityguard} from "/framework/js/securityguard.mjs";
 import {monkshu_component} from "/framework/js/monkshu_component.mjs";
 
-async function elementConnected(element) {
+const COMPONENT_PATH = util.getModulePath(import.meta);
+
+async function elementConnected(host) {
 	let data = {};
 
-	if (element.getAttribute("styleBody")) data.styleBody = `<style>${element.getAttribute("styleBody")}</style>`;
-	data.minlength = element.getAttribute("minlength");
-	
-	if (element.id) {
-		if (!login_box.datas) login_box.datas = {}; login_box.datas[element.id] = data;
-	} else login_box.data = data;
+	if (host.getAttribute("styleBody")) data.styleBody = `<style>${host.getAttribute("styleBody")}</style>`;
+	data.minlength = host.getAttribute("minlength"); data.COMPONENT_PATH = COMPONENT_PATH;
+
+	login_box.setData(host.id, data);
 }
 
 async function signin(signInButton) {	
@@ -25,16 +28,19 @@ async function signin(signInButton) {
 	const pass = shadowRoot.querySelector("#pass").value;
 	const otp = shadowRoot.querySelector("#otp").value;
 	const routeOnSuccess = login_box.getHostElement(signInButton).getAttribute("routeOnSuccess");
+	const routeOnNotApproved = login_box.getHostElement(signInButton).getAttribute("routeOnNotApproved");
 
-	_handleLoginResult(await loginmanager.signin(userid, pass, otp), shadowRoot, routeOnSuccess);
+	_showWait(shadowRoot); const loginResult = await loginmanager.signin(userid, pass, otp); _hideWait(shadowRoot);
+	_handleLoginResult(loginResult, shadowRoot, routeOnSuccess, routeOnNotApproved, signInButton);
 }
 
-function resetAccount(element) {
+async function resetAccount(element) {
 	const shadowRoot = login_box.getShadowRootByContainedElement(element);
-	shadowRoot.getElementById("notifier").style.display = "none";
-	shadowRoot.getElementById("notifier2").style.display = "inline";
+	_hideErrors(shadowRoot);
 
-	loginmanager.reset(shadowRoot.getElementById("userid").value);
+	_showWait(shadowRoot); const result = await loginmanager.reset(shadowRoot.getElementById("userid").value); _hideWait(shadowRoot);
+	if ((!result) || (!result.result)) shadowRoot.getElementById("notifier3").classList.add("visible");
+	else shadowRoot.getElementById("notifier2").classList.add("visible");
 }
 
 function _validateForm(shadowRoot) {
@@ -46,15 +52,44 @@ function _validateForm(shadowRoot) {
 }
 
 function _hideErrors(shadowRoot) {
-	shadowRoot.getElementById("notifier").style.display = "none";
-	shadowRoot.getElementById("notifier2").style.display = "none";
+	shadowRoot.querySelector("span#errorMissingID").classList.remove("visible");
+	shadowRoot.querySelector("span#errorOTP").classList.remove("visible");
+	shadowRoot.querySelector("span#errorPassword").classList.remove("visible");
+	shadowRoot.querySelector("span#errorGeneric").classList.remove("visible");
+	shadowRoot.querySelector("span#errorDomain").classList.remove("visible");
+	shadowRoot.querySelector("span#notifier2").classList.remove("visible");
+	shadowRoot.querySelector("span#notifier3").classList.remove("visible");
+	shadowRoot.querySelector("span#spinner").classList.remove("visible");
 }
 
-function _handleLoginResult(result, shadowRoot, routeOnSuccess) {
-	if (result) router.loadPage(routeOnSuccess);
-	else shadowRoot.getElementById("notifier").style.display = "inline";
+async function _handleLoginResult(result, shadowRoot, routeOnSuccess, routeOnNotApproved, containedElement) {
+	let data; if (result == loginmanager.ID_OK_NOT_YET_VERIFIED) data = JSON.parse(
+		await router.expandPageData(login_box.getHostElement(containedElement).getAttribute("dataOnSuccessButNotVerified")||"{}",
+		undefined, {name: session.get(APP_CONSTANTS.USERNAME), id: session.get(APP_CONSTANTS.USERID), 
+			org: session.get(APP_CONSTANTS.USERORG), role: securityguard.getCurrentRole(), needs_verification: true}));
+	if (result == loginmanager.ID_OK) data = JSON.parse(
+		await router.expandPageData(login_box.getHostElement(containedElement).getAttribute("dataOnSuccess")||"{}",
+		undefined, {name: session.get(APP_CONSTANTS.USERNAME), id: session.get(APP_CONSTANTS.USERID), 
+			org: session.get(APP_CONSTANTS.USERORG), role: securityguard.getCurrentRole(), needs_verification: false}));
+			
+	switch (result) {
+		case loginmanager.ID_OK: router.loadPage(routeOnSuccess, data); break;
+		case loginmanager.ID_OK_NOT_YET_VERIFIED: router.loadPage(routeOnSuccess, data); break;
+		case loginmanager.ID_OK_NOT_YET_APPROVED: router.loadPage(routeOnNotApproved, data); break;
+
+		case loginmanager.ID_FAILED_MISSING: shadowRoot.querySelector("span#errorMissingID").classList.add("visible"); break;
+		case loginmanager.ID_FAILED_OTP: shadowRoot.querySelector("span#errorOTP").classList.add("visible"); break;
+		case loginmanager.ID_FAILED_PASSWORD: shadowRoot.querySelector("span#errorPassword").classList.add("visible"); break;
+		case loginmanager.ID_DOMAIN_ERROR: shadowRoot.querySelector("span#errorDomain").classList.add("visible"); break;
+
+		case loginmanager.ID_INTERNAL_ERROR: shadowRoot.querySelector("span#errorGeneric").classList.add("visible"); break;
+		default: shadowRoot.querySelector("span#errorGeneric").classList.add("visible"); break;
+	}
 }
+
+const _showWait = shadowRoot => shadowRoot.querySelector("span#spinner").classList.add("visible");
+const _hideWait = shadowRoot => shadowRoot.querySelector("span#spinner").classList.remove("visible");
 
 const trueWebComponentMode = true;	// making this false renders the component without using Shadow DOM
 export const login_box = {signin, resetAccount, trueWebComponentMode, elementConnected}
-monkshu_component.register("login-box", `${APP_CONSTANTS.APP_PATH}/components/login-box/login-box.html`, login_box);
+monkshu_component.register("login-box", `${COMPONENT_PATH}/login-box.html`, login_box);
