@@ -7,9 +7,6 @@ import {util} from "/framework/js/util.mjs";
 import {i18n} from "/framework/js/i18n.mjs";
 import {router} from "/framework/js/router.mjs";
 import {session} from "/framework/js/session.mjs";
-import "./subcomponents/dialog-box/dialog-box.mjs";
-import "./subcomponents/context-menu/context-menu.mjs";
-import "./subcomponents/editable-list/editable-list.mjs";
 import {apimanager as apiman} from "/framework/js/apimanager.mjs";
 import {monkshu_component} from "/framework/js/monkshu_component.mjs";
 

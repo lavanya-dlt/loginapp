@@ -9,12 +9,6 @@
 	"CREATE TABLE domains(domain varchar not null primary key, org varchar not null)",
 	
 	"CREATE TABLE credit_cards(number varchar not null primary key, expiry_month integer not null, expiry_year integer not null, name varchar not null, ccv varchar not null, org varchar not null)",
-    
-    "/* The following is for XBin DB schemas */",
-    "CREATE TABLE shares(fullpath varchar not null, id varchar primary key, expiry varchar not null)",
-	
-    "CREATE TABLE quotas(id varchar not null primary key, quota integer not null)",
-	
 	
     "COMMIT TRANSACTION"
 ]
