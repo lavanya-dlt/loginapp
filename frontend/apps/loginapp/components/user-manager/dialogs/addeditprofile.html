@@ -117,11 +117,15 @@ img#spinner {height: 2em; width: 2em;}
 <input type="email" id="new_id" placeholder="{{i18n.Email}}" value="{{old_id}}" required 
     oninvalid="this.setCustomValidity('{{i18n.FillField}}')" oninput="setCustomValidity('')">
 <input type="hidden" id="old_id" value="{{old_id}}">
+
+{{^doNotAllowRoles}}
 <select id="role" value="{{role}}" required>
     {{#roles}}
     <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
     {{/roles}}
 </select>
+{{/doNotAllowRoles}}
+
 {{^doNotAllowApproval}}
 <span id="toggler">
     <span>{{i18n.Approve}}?</span>

@@ -94,6 +94,7 @@ async function editUser(name, old_id, role, approved, element) {
 	const roles = []; for (const thisrole of conf.roles) roles.push({label:await i18n.get(thisrole), value: thisrole, selected: thisrole==role?true:undefined});
 	monkshu_env.components['dialog-box'].showDialog(`${COMPONENT_PATH}/dialogs/addeditprofile.html`, true, true, 
 			{name, old_id, role, approved:approved==1?true:undefined, roles, CONF:conf, 
+				doNotAllowRoles:old_id==session.get(conf.userid_session_variable).toString()?true:undefined, 
 				doNotAllowApproval:old_id==session.get(conf.userid_session_variable).toString()?true:undefined, 
 				COMPONENT_PATH}, "dialog", ["name", "new_id", "role", "approved", "old_id"], async ret => {
 		
