@@ -9,7 +9,7 @@ exports.doService = async jsonReq => {
 	
 	LOG.debug(`Got delete user request for ID ${jsonReq.id}`);
 
-	const result = await userid.delete(jsonReq.id);
+	const result = await userid.deleteUser(jsonReq.id);
 
 	if (result.result) LOG.info(`User ${jsonReq.id} deleted.`); else LOG.error(`Unable to delete user with ID: ${jsonReq.id}.`);
 

@@ -4,3 +4,22 @@
 {"ts":"2023:03:23:03:50:57","level":"warning","message":"[192.168.1.6] Bad password for thecompany@tekmonks.com."}
 {"ts":"2023:03:23:03:51:05","level":"info","message":"[192.168.1.6] Login succeeded for thecompany@tekmonks.com."}
 {"ts":"2023:03:23:04:25:06","level":"info","message":"[192.168.1.6] Registration succeeded thecompany@tekmonks.com."}
+{"ts":"2023:04:15:03:21:21","level":"info","message":"[192.168.1.12] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:15:03:30:18","level":"info","message":"[192.168.1.12] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:15:15:10:08","level":"info","message":"[192.168.1.12] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:15:15:42:40","level":"info","message":"[192.168.1.12] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:15:17:26:55","level":"error","message":"[192.168.1.12] Registration failed for tingo@tingo.com due to domainerror."}
+{"ts":"2023:04:15:17:27:07","level":"error","message":"[192.168.1.12] Registration failed for tingo@tekmonks.com due to otp."}
+{"ts":"2023:04:15:17:28:26","level":"warning","message":"[192.168.1.12] Registration finished successfully but not approved yet for tingo@tekmonks.com."}
+{"ts":"2023:04:16:04:15:00","level":"error","message":"[192.168.1.3] Registration failed for kaka@tingo.com due to domainerror."}
+{"ts":"2023:04:16:04:21:39","level":"error","message":"[192.168.1.3] Registration failed for kaka@tingo.com due to domainerror."}
+{"ts":"2023:04:16:04:21:41","level":"error","message":"[192.168.1.3] Registration failed for kaka@tingo.com due to domainerror."}
+{"ts":"2023:04:16:04:21:50","level":"error","message":"[192.168.1.3] Registration failed for kaka@tingo.com due to domainerror."}
+{"ts":"2023:04:16:04:21:52","level":"error","message":"[192.168.1.3] Registration failed for kaka@tingo.com due to domainerror."}
+{"ts":"2023:04:16:04:21:53","level":"error","message":"[192.168.1.3] Registration failed for kaka@tingo.com due to domainerror."}
+{"ts":"2023:04:16:04:22:09","level":"error","message":"[192.168.1.3] Registration failed for kaka@tingo.com due to domainerror."}
+{"ts":"2023:04:16:04:24:11","level":"error","message":"[192.168.1.3] Registration failed for kaka@tingo.com due to domainerror."}
+{"ts":"2023:04:17:02:10:01","level":"error","message":"[192.168.1.12] Registration failed for kaka@tekmonks.co.uk due to internal."}
+{"ts":"2023:04:17:02:12:21","level":"error","message":"[192.168.1.12] Registration failed for kaka@tekmonks.co.uk due to internal."}
+{"ts":"2023:04:17:02:17:00","level":"info","message":"[192.168.1.12] Registration succeeded kaka@tekmonks.co.uk."}
+{"ts":"2023:04:17:02:17:17","level":"info","message":"[192.168.1.12] Logout of user ID: kaka@tekmonks.co.uk."}

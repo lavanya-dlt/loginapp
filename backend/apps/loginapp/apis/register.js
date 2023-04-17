@@ -6,7 +6,6 @@ const mustache = require('mustache');
 const utils = require(`${CONSTANTS.LIBDIR}/utils.js`);
 const crypt = require(`${CONSTANTS.LIBDIR}/crypt.js`);
 const totp = require(`${APP_CONSTANTS.LIB_DIR}/totp.js`);
-const CONF = require(`${APP_CONSTANTS.CONF_DIR}/app.json`);
 const mailer = require(`${APP_CONSTANTS.LIB_DIR}/mailer.js`);
 const userid = require(`${APP_CONSTANTS.LIB_DIR}/userid.js`);
 const queueExecutor = require(`${CONSTANTS.LIBDIR}/queueExecutor.js`);
@@ -42,7 +41,7 @@ exports.addUser = async (jsonReq, servObject, byAdmin=false) => {
 	}
 
 	const existingUsersForDomain = await userid.getUsersForDomain(exports.getRootDomain(jsonReq)), 
-		existingUsersForOrg = await userid.getUsersForOrg(jsonReq.org), 
+		existingUsersForOrg = await userid.getUsersForOrgOrSuborg(jsonReq.org), 
 		notFirstUserForThisDomain = existingUsersForDomain && existingUsersForDomain.result && existingUsersForDomain.users.length,
 		notFirstUserForThisOrg = existingUsersForOrg && existingUsersForOrg.result && existingUsersForOrg.users.length,
 		approved = byAdmin ? jsonReq.approved : (APP_CONSTANTS.CONF.new_users_need_approval_from_admin?
@@ -57,7 +56,7 @@ exports.addUser = async (jsonReq, servObject, byAdmin=false) => {
 
 	if (result.result) for (const newUserListener of newUserListeners) if (!(await newUserListener(jsonReq.id, jsonReq.org))) {	// inform listeners and watch for a veto
 		LOG.error(`Listener veto for id ${id}, for org ${org}. Dropping the ID.`);
-		try {userid.delete(id)} catch(_) {};	// try to drop the account
+		try {userid.deleteUser(id)} catch(_) {};	// try to drop the account
 		return {...CONSTANTS.FALSE_RESULT, reason: REASONS.INTERNAL_ERROR};
 	}
 
@@ -65,7 +64,7 @@ exports.addUser = async (jsonReq, servObject, byAdmin=false) => {
 		let mailVerificationResult = false; try{mailVerificationResult = await _emailAccountVerification(result.id, result.name, result.org, jsonReq.lang);} catch (err) {}
 		if (!mailVerificationResult) {
 			LOG.info(`Unable to register: ${jsonReq.name}, ID: ${jsonReq.id} verification email error.`); 
-			try {userid.delete(id)} catch(_) {};	// try to drop the account
+			try {userid.deleteUser(id)} catch(_) {};	// try to drop the account
 			return {...CONSTANTS.FALSE_RESULT, reason: REASONS.INTERNAL_ERROR};
 		}
 	}
@@ -73,7 +72,7 @@ exports.addUser = async (jsonReq, servObject, byAdmin=false) => {
 	if (result.result) {
 		LOG.info(`User registered: ${jsonReq.name}, ID: ${jsonReq.id}, approval status is: ${result.approved==1?true:false}`); 
 		if (result.approved && (!byAdmin)) queueExecutor.add(userid.updateLoginStats, [jsonReq.id, Date.now(), 
-			utils.getClientIP(servObject.req)], true, CONF.login_update_delay||DEFAULT_QUEUE_DELAY);
+			utils.getClientIP(servObject.req)], true, APP_CONSTANTS.CONF.login_update_delay||DEFAULT_QUEUE_DELAY);
 		if (!result.approved) queueExecutor.add(_emailAdminNewRegistration, [result.id, result.name, result.org, jsonReq.lang], 
 			true, DEFAULT_QUEUE_DELAY);
 	}
@@ -85,10 +84,16 @@ exports.addUser = async (jsonReq, servObject, byAdmin=false) => {
 
 exports.updateOrgAndDomain = async jsonReq => {
 	const rootDomain = exports.getRootDomain(jsonReq);
+
+	// if this root domain already has users, override the org to the existing organization for this 
+	// domain's users
 	const existingUsersForDomain = await userid.getUsersForDomain(rootDomain);
-	if (existingUsersForDomain && existingUsersForDomain.result && existingUsersForDomain.users.length) 
-		jsonReq.org = (await userid.getOrgForDomain(rootDomain))||jsonReq.org;	// if this domain already exists, override the org to the existing organization
-	jsonReq.domain = rootDomain;
+	const fixedOrg = (existingUsersForDomain && existingUsersForDomain.result && 
+		existingUsersForDomain.users.length) ? (await userid.getOrgForDomain(rootDomain)) : jsonReq.org;
+		
+	jsonReq.domain = rootDomain; jsonReq.org = fixedOrg;
+	LOG.info(`Set domain for ${jsonReq.id} to ${rootDomain}.`); 
+	if (fixedOrg != jsonReq.org) LOG.info(`Adjusted org for ${jsonReq.id} from ${jsonReq.org} to ${fixedOrg}.`); 
 }
 
 exports.getRootDomain = function(jsonReq, idProperty="id") {
@@ -103,7 +108,8 @@ exports.shouldAllowDomain = async function(jsonReq, idProperty) {
 }
 
 exports.checkOrgAndDomainMatch = async function (jsonReq, idProperty, mustHaveDomains) {
-	const rootDomain = exports.getRootDomain(jsonReq, idProperty), domainsForOrg = await userid.getDomainsForOrg(jsonReq.org);
+	const rootDomain = exports.getRootDomain(jsonReq, idProperty), rootOrg = await userid.getRootOrg(jsonReq.org),
+		domainsForOrg = await userid.getDomainsForOrg(rootOrg||jsonReq.org);
 	// if this organization currently has no domains registered then return true unless caller insists we must have domains
 	if ((!domainsForOrg) || (!domainsForOrg.length)) if (mustHaveDomains) return false; else return true;
 

@@ -49,7 +49,7 @@ export const i18n = {
 "ChangePassword": "Change password",
 "ChangePhone": "Change phone",
 "ChangeProfile": "Change profile",
-"ManageUsers": "Manage users",
+"ManageUsersAndOrg": "Manage",
 "PWCHANGEFAILED": "Password change failed.",
 "PWCHANGED": "Password changed.",
 "PHONECHANGEFAILED": "Code was not correct, failed.",

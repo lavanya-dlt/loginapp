@@ -9,7 +9,7 @@ exports.doService = async jsonReq => {
     
 	LOG.info("Got get users request for org: " + jsonReq.org);
 
-	const result = await userid.getUsersForOrg(jsonReq.org);
+	const result = await userid.getUsersForRootOrg(jsonReq.org);
 
 	if (result.result) LOG.info(`Sending user list for org: ${jsonReq.org}`); else LOG.error(`Unable to users for org: ${jsonReq.org}, DB error`);
 

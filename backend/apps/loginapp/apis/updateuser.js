@@ -64,7 +64,7 @@ exports.doService = async (jsonReq, _, headers) => {
 		userDomain = register.getRootDomain(jsonReq, "new_id");	// domain may have potentially changed too
 	}
 
-	const result = await userid.update(jsonReq.old_id, jsonReq.new_id, jsonReq.name||idEntry.name, 
+	const result = await userid.updateUser(jsonReq.old_id, jsonReq.new_id, jsonReq.name||idEntry.name, 
 		idEntry.org, idEntry.pwph, jsonReq.pwph, jsonReq.totpSecret||idEntry.totpsec, 
 		jsonReq.role||idEntry.role, (jsonReq.approved==true||jsonReq.approved==1)?1:0, userDomain);
 
