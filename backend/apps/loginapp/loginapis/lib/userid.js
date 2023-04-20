@@ -226,12 +226,12 @@ exports.getOrg = async org => {
 exports.deleteOrg = async org => {
 	const usersForOrg = await exports.getUsersForRootOrg(org), suborgsForOrg = await exports.getSubOrgs(org),
 		domainsForOrg = await exports.getDomainsForOrg(org);
-	if ((!usersForOrg) || (!suborgsForOrg) || (!domainsForOrg)) return {result: false, org};
+	if ((!suborgsForOrg) || (!domainsForOrg)) return {result: false, org};
 
 	const deleteResult = await db.runCmd("DELETE FROM orgs WHERE name = ?", [org]);
 
 	if (deleteResult) {	// delete corresponding users, suborgs and domains
-		for (const user of usersForOrg.users) if (!(await exports.deleteUser(user.id)).result)
+		if (usersForOrg && usersForOrg.users) for (const user of usersForOrg.users) if (!(await exports.deleteUser(user.id)).result)
 			LOG.warn(`Deletion of org ${org} orphaned user ${user.id} as deletion of this user failed. Database is inconsistent.`);
 		for (const suborg of suborgsForOrg) if (!(await exports.deleteSuborg(suborg)).result)
 			LOG.warn(`Deletion of org ${org} orphaned suborg ${suborg} as deletion of this suborg failed. Database is inconsistent.`);

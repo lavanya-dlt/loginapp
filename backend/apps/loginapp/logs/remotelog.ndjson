@@ -238,3 +238,9 @@
 {"ts":"2023:04:20:17:02:43","level":"info","message":"[192.168.1.17] Logout of user ID: thecompany@tekmonks.com."}
 {"ts":"2023:04:20:17:03:00","level":"info","message":"[192.168.1.17] Login succeeded for thecompany@tekmonks.com."}
 {"ts":"2023:04:20:17:03:53","level":"info","message":"[192.168.1.17] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:21:03:07:43","level":"info","message":"[192.168.1.17] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:21:03:16:28","level":"error","message":"[192.168.1.17] Error in fetching https://192.168.1.17:9090/apps/loginapp/addorupdateorg for request {\"id\":\"thecompany@tekmonks.com\",\"org\":\"Tekmonks\",\"new_org\":\"Tekmonks\",\"primary_contact_name\":\"Tekmonks Corp.\",\"primary_contact_email\":\"thecompany@tekmonks.com\",\"address\":\"1235 Bay St, Suite 400, Toronto. ON. Canada. M5R3K4.\",\"domain\":\"tekmonks.come\",\"alternate_names\":[\"Tekmonks Corp\"],\"alternate_domains\":[]} of type POST due to 500: "}
+{"ts":"2023:04:21:03:16:28","level":"error","message":"[192.168.1.17] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:21:03:16:40","level":"error","message":"[192.168.1.17] Can't fetch the list of users for the org, API returned false."}
+{"ts":"2023:04:21:03:16:49","level":"info","message":"[192.168.1.17] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:21:03:17:08","level":"warning","message":"[192.168.1.17] Bad ID given for thecompany@tekmonks.com."}

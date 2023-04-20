@@ -117,11 +117,13 @@ async function editUser(name, old_id, role, approved, element) {
 }
 
 async function editOrg(org, element) {
+	const _arrayBNotSubsetOfA = (a,b) => (a.length < b.length) || (!b.every(element => a.includes(element)));
 	const backendURL = user_manager.getHostElement(element).getAttribute("backendurl");
 	const orgDetails = await apiman.rest(`${backendURL}/${API_GETORG}`, "GET", {
 		id: session.get(conf.userid_session_variable).toString(), org}, true);
 	if ((!orgDetails) || (!orgDetails.result)) {const err = await i18n.get("OrgFetchError"); LOG.error(err); _showError(err); return;}
 	
+	const dontCheckUserDrops = false;
 	monkshu_env.components['dialog-box'].showDialog(`${COMPONENT_PATH}/dialogs/editorg.html`, true, true, 
 		{orgname: orgDetails.name, orgaddress: orgDetails.address, orgcontactname: orgDetails.primary_contact_name, 
 			orgcontactemail: orgDetails.primary_contact_email, orgdomain: orgDetails.domain, 
@@ -132,6 +134,12 @@ async function editOrg(org, element) {
 		const _jsonListValuesToStringArray = list => {const retList = []; for (const item of JSON.parse(list)) 
 			retList.push(item.label); return retList;}
 		ret.orgnames = _jsonListValuesToStringArray(ret.orgnames); ret.orgdomains = _jsonListValuesToStringArray(ret.orgdomains); 
+		if ((!dontCheckUserDrops) && (_arrayBNotSubsetOfA(ret.orgnames, orgDetails.alternate_names) || 
+			_arrayBNotSubsetOfA(ret.orgdomains, orgDetails.alternate_domains))) {
+				monkshu_env.components['dialog-box'].error("dialog", await i18n.get("ChangingDomainsOrSuborgsWillDeleteUsers"));
+				dontCheckUserDrops = true;
+				return;	// inform admin if he changes org domains or alternate names we will drop associated users
+		}
 		const req = {id: session.get(conf.userid_session_variable).toString(), 
 			org: session.get(conf.userorg_session_variable).toString(), new_org: ret.orgname, 
 			primary_contact_name: ret.orgcontactname, primary_contact_email: ret.orgcontactemail, address: ret.orgaddress, 
@@ -140,7 +148,8 @@ async function editOrg(org, element) {
 		const editResult = await _callBackendAPIShowingSpinner(`${backendURL}/${API_UPDATE_ORG}`, req, "POST", true, true);
 		if (!(editResult?.result)) { 
 			const key = !editResult ? "Internal" : editResult.reason == "internal" ? "Internal" : editResult.reason == "domainerror" ? "Domain" : "Internal";
-			const err = await i18n.get(`OrgEditError${key}`); LOG.error(err); monkshu_env.components['dialog-box'].error("dialog", err); 
+			const err = await i18n.get(`OrgEditError${key}`); LOG.error(err); 
+			monkshu_env.components['dialog-box'].error("dialog", err); 
 		} else { 
 			session.set(conf.userorg_session_variable, ret.orgname);	// update org name for the current user
 			monkshu_env.components['dialog-box'].hideDialog("dialog"); 
@@ -208,8 +217,13 @@ const _showError = async error => { await monkshu_env.components['dialog-box'].s
 	true, false, {error, CONF:conf}, "dialog", []); monkshu_env.components['dialog-box'].hideDialog("dialog"); }
 const _showMessage = async message => { await monkshu_env.components['dialog-box'].showDialog(`${COMPONENT_PATH}/dialogs/message.html`, 
 	true, false, {message, CONF:conf}, "dialog", []); monkshu_env.components['dialog-box'].hideDialog("dialog"); }
-const _execOnConfirm = (message, cb) => monkshu_env.components['dialog-box'].showDialog(`${COMPONENT_PATH}/dialogs/message.html`, 
-	true, true, {message, CONF:conf}, "dialog", [], _=>{monkshu_env.components['dialog-box'].hideDialog("dialog"); cb();});
+const _execOnConfirm = (message, cb) => {
+	if (cb) monkshu_env.components['dialog-box'].showDialog(`${COMPONENT_PATH}/dialogs/message.html`, 
+		true, true, {message, CONF:conf}, "dialog", [], _=>{monkshu_env.components['dialog-box'].hideDialog("dialog"); cb();});
+	else return new Promise(resolve => monkshu_env.components['dialog-box'].showDialog(
+		`${COMPONENT_PATH}/dialogs/message.html`, true, true, {message, CONF:conf}, "dialog", [],
+		_=>{monkshu_env.components['dialog-box'].hideDialog("dialog"); resolve(true)}, _=>resolve(false)));
+}
 
 export const user_manager = {trueWebComponentMode: true, elementConnected, userMenuClicked, orgMenuClicked, addUser, 
 	editUser, editOrg, searchModified, elementRendered}
