@@ -40,7 +40,7 @@ exports.doService = async (jsonReq, _, headers) => {
 	if ( (jsonReq.approved==undefined) || (!login.isAdmin(headers)) ) jsonReq.approved = idEntry.approved;	// only admin can approve
 
 	const successfulListeners = [], rollback = async _ => {	
-		for (idChangeListener of successfulListeners) await idChangeListener(jsonReq.new_id, jsonReq.old_id, idEntry.org);}
+		for (const idChangeListener of successfulListeners) await idChangeListener(jsonReq.new_id, jsonReq.old_id, idEntry.org);}
 	let userDomain = register.getRootDomain(jsonReq, "old_id");
 	if (jsonReq.old_id.toLowerCase() != jsonReq.new_id.toLowerCase()) {	// domain check, account takeover check and tell ID change listeners the user is changing their ID
 		const checkNewIDAlreadyExists = await userid.existsID(jsonReq.new_id); 
@@ -55,7 +55,7 @@ exports.doService = async (jsonReq, _, headers) => {
 		}
 
 		// listeners informed
-		for (idChangeListener of idChangeListeners) if (!await idChangeListener(jsonReq.old_id, jsonReq.new_id, idEntry.org)) {
+		for (const idChangeListener of idChangeListeners) if (!await idChangeListener(jsonReq.old_id, jsonReq.new_id, idEntry.org)) {
 			await rollback(); 
 			LOG.error(`Unable to update: ${idEntry.name}, ID: ${jsonReq.old_id}, an ID change listener vetoed.`); 
 			return {...CONSTANTS.FALSE_RESULT, reason: register.REASONS.INTERNAL_ERROR}; 

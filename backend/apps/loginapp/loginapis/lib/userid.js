@@ -24,8 +24,8 @@ exports.register = async (id, name, org, pwph, totpSecret, role, approved, verif
 
 	let finalResult = true;
 	const existingRootOrg = await exports.getRootOrg(org); if (!existingRootOrg) {
-		const orgCreateResult = await exports.addOrUpdateOrg(org, name, id, undefined, domain, 
-			undefined, undefined);	// Why? Because this root org doesn't exist so must add it
+		// Why? Because this root org doesn't exist so must add it
+		const orgCreateResult = await exports.addOrUpdateOrg(org, org, name, id, undefined, domain);	
 		if (!orgCreateResult.result) finalResult = false;
 	}
 
@@ -124,7 +124,7 @@ exports.getUsersForDomain = async domain => {
 	if (users && users.length) return {result: true, users}; else return {result: false};
 }
 
-exports.getOrgForDomain = async domain => {
+exports.getRootOrgForDomain = async domain => {
 	const orgs = await db.getQuery("SELECT org FROM domains WHERE domain = ? COLLATE NOCASE", [domain]);
 	if (orgs && orgs.length) return orgs[0].org; else return null;
 }
@@ -134,8 +134,8 @@ exports.getDomainsForOrg = async org => {
 	if (domains && domains.length) return _flattenArray(domains, "domain", domain => domain.toLowerCase()); else return null;
 }
 
-exports.approve = async id => {
-	return {result: await db.runCmd("UPDATE users SET approved=1 WHERE id=?", [id])};
+exports.approve = async (id, org) => {
+	return {result: await db.runCmd("UPDATE users SET approved=1 WHERE id=? and org=?", [id, org])};
 }
 
 exports.verifyEmail = async id => {
@@ -178,33 +178,38 @@ exports.shouldAllowDomain = async domain => {
 	if (APP_CONSTANTS.CONF.id_blacklist_mode) return (!isSubdomainOrMainDomainInBlacklist);	
 }
 
-exports.addOrUpdateOrg = async (name, primary_contact_name="", primary_contact_email, address="", domain, 
+exports.addOrUpdateOrg = async (org, neworg, primary_contact_name="", primary_contact_email, address="", domain, 
 		alternate_names=[], alternate_domains=[]) => {
 			
+	if (!neworg) neworg = org;
 	const transactions = [];
-	transactions.push({cmd: "INSERT INTO orgs (name, primary_contact_name, primary_contact_email, address, domain) values (?,?,?,?,?) ON CONFLICT(name) DO UPDATE SET primary_contact_name=?, primary_contact_email=?, address=?, domain=?", 
-		params:[name, primary_contact_name, primary_contact_email, address, domain, 
-			primary_contact_name, primary_contact_email, address, domain]});
-	transactions.push({cmd:"DELETE FROM domains WHERE org = ?", params: [name]});
-	transactions.push({cmd:"DELETE FROM suborgs WHERE org = ?", params: [name]});
+	transactions.push({cmd: "INSERT INTO orgs (name, primary_contact_name, primary_contact_email, address, domain) values (?,?,?,?,?) ON CONFLICT(name) DO UPDATE SET name = ?, primary_contact_name=?, primary_contact_email=?, address=?, domain=?", 
+		params:[org, primary_contact_name, primary_contact_email, address, domain, 
+			neworg, primary_contact_name, primary_contact_email, address, domain]});
+	transactions.push({cmd: "UPDATE users SET org = ? WHERE org = ?", params: [neworg, org]});
+	transactions.push({cmd: "UPDATE suborgs SET org = ? WHERE org = ?", params: [neworg, org]});
+	transactions.push({cmd: "UPDATE domains SET org = ? WHERE org = ?", params: [neworg, org]});
+	transactions.push({cmd: "UPDATE credit_cards SET org = ? WHERE org = ?", params: [neworg, org]});
+	transactions.push({cmd:"DELETE FROM domains WHERE org = ?", params: [neworg]});
+	transactions.push({cmd:"DELETE FROM suborgs WHERE org = ?", params: [neworg]});
 	for (const domainThis of [...alternate_domains, domain]) transactions.push({
-		cmd: "INSERT INTO domains (domain, org) VALUES (?,?)", params: [domainThis, name]});
-	for (const alternateName of [...alternate_names, name]) transactions.push({
-		cmd: "INSERT INTO suborgs (name, org) VALUES (?,?)", params: [alternateName, name]});
+		cmd: "INSERT INTO domains (domain, org) VALUES (?,?)", params: [domainThis, neworg]});
+	for (const alternateName of [...alternate_names, org]) transactions.push({
+		cmd: "INSERT INTO suborgs (name, org) VALUES (?,?)", params: [alternateName, neworg]});
 
 	const updateResult = await db.runTransaction(transactions);
 
 	// as the user may have dropped domains or suborgs - delete orphans
-	const orphanedSuborgs = _flattenArray(await db.getQuery("SELECT DISTINCT suborg FROM users WHERE org = ? MINUS SELECT name FROM suborgs WHERE org = ?", [org, org]),
+	const orphanedSuborgs = _flattenArray(await db.getQuery("SELECT DISTINCT suborg FROM users WHERE org = ? EXCEPT SELECT name FROM suborgs WHERE org = ?", [neworg, neworg]),
 		"suborg");
-	const orphanedDomains = _flattenArray(await db.getQuery("SELECT DISTINCT domain FROM users WHERE org = ? MINUS SELECT domain FROM domains WHERE org = ?", [org, org]),
+	const orphanedDomains = _flattenArray(await db.getQuery("SELECT DISTINCT domain FROM users WHERE org = ? EXCEPT SELECT domain FROM domains WHERE org = ?", [neworg, neworg]),
 		"domain");
 	if (orphanedSuborgs.length) LOG.info(`Dropping suborgs ${JSON.stringify(orphanedSuborgs)} as a result of org edit orphans them.`);
 	if (orphanedDomains.length) LOG.info(`Dropping domains ${JSON.stringify(orphanedDomains)} as a result of org edit orphans them.`);
-	for (const orphanedOrg of orphanedSuborgs) await exports.deleteSuborg(orphanedOrg);
-	for (const orphanedDomain of orphanedDomains) await exports.deleteDomain(orphanedDomain);
+	for (const orphanedOrg of orphanedSuborgs) if (!await exports.deleteSuborg(orphanedOrg)) LOG.error(`Deletion of suborg ${orphanedOrg} failed.  Database is inconsistent.`);
+	for (const orphanedDomain of orphanedDomains) if (!await exports.deleteDomain(orphanedDomain)) LOG.error(`Deletion of domain ${orphanedDomain} failed.  Database is inconsistent.`);
 
-	return {result: updateResult, name, primary_contact_name, primary_contact_email, address, domain, 
+	return {result: updateResult, name: org, primary_contact_name, primary_contact_email, address, domain, 
 		alternate_names, alternate_domains};
 }
 
@@ -226,12 +231,12 @@ exports.deleteOrg = async org => {
 	const deleteResult = await db.runCmd("DELETE FROM orgs WHERE name = ?", [org]);
 
 	if (deleteResult) {	// delete corresponding users, suborgs and domains
-		for (const user of usersForOrg.users) if (!(await exports.deleteUser(user.id, dbEntryAlreadyDropped)).result)
-			LOG.warn(`Deletion of org ${org} orphaned user ${user.id} as deletion of this user failed.`);
+		for (const user of usersForOrg.users) if (!(await exports.deleteUser(user.id)).result)
+			LOG.warn(`Deletion of org ${org} orphaned user ${user.id} as deletion of this user failed. Database is inconsistent.`);
 		for (const suborg of suborgsForOrg) if (!(await exports.deleteSuborg(suborg)).result)
-			LOG.warn(`Deletion of org ${org} orphaned suborg ${suborg} as deletion of this suborg failed.`);
+			LOG.warn(`Deletion of org ${org} orphaned suborg ${suborg} as deletion of this suborg failed. Database is inconsistent.`);
 		for (const domain of domainsForOrg) if (!(await exports.deleteDomain(domain)).result) 
-			LOG.warn(`Deletion of org ${org} orphaned domain ${domain} as deletion of this domain failed.`);;
+			LOG.warn(`Deletion of org ${org} orphaned domain ${domain} as deletion of this domain failed. Database is inconsistent.`);
 	}
 
 	return {result: deleteResult, org};
@@ -242,12 +247,12 @@ exports.addSuborg = async (suborg, org) => {
 }
 
 exports.deleteSuborg = async suborg => {
-	const usersForSuborg = await exports.getUsersForSuborg(org);
+	const usersForSuborg = await exports.getUsersForSuborg(suborg);
 	const suborgDeletionResult = await db.runCmd("DELETE FROM suborgs WHERE name = ?", [suborg]);
 
 	if (suborgDeletionResult) {	// if suborg is deleted then drop all its users too
-		for (const user of usersForSuborg.users) if (!(await exports.deleteUser(user.id, dbEntryAlreadyDropped)).result)
-			LOG.warn(`Deletion of suborg ${org} orphaned user ${user.id} as deletion of this user failed.`);
+		for (const user of usersForSuborg.users) if (!(await exports.deleteUser(user.id)).result)
+			LOG.warn(`Deletion of suborg ${org} orphaned user ${user.id} as deletion of this user failed. Database is inconsistent.`);
 	}
 	return {result: suborgDeletionResult, suborg};
 }
@@ -261,7 +266,7 @@ exports.deleteDomain = async domain => {
 	const domainDeletionResult = await db.runCmd("DELETE FROM domains WHERE domain = ?", [domain]);
 
 	if (domainDeletionResult) {	// if domain is deleted then drop all its users too
-		for (const user of usersForDomain.users) if (!(await exports.deleteUser(user.id, dbEntryAlreadyDropped)).result)
+		for (const user of usersForDomain.users) if (!(await exports.deleteUser(user.id)).result)
 			LOG.warn(`Deletion of domain ${domain} orphaned user ${user.id} as deletion of this user failed.`);
 	}
 	return {result: domainDeletionResult, domain};

@@ -17,9 +17,9 @@ exports.doService = async (jsonReq, servObject, headers) => {
     
     LOG.debug(`Got add user request for ID: ${jsonReq.new_id}, by admin with ID: ${login.getID(headers)}`);
 
-    const org = login.getOrg(headers), result = await register.addUser({pwph: '', id: jsonReq.new_id, name: jsonReq.name, org,
-        totpSecret: totp.getSecret(), lang: jsonReq.lang, role: jsonReq.role, verifyEmail : 0,
-        approved: (jsonReq.approved==true||jsonReq.approved==1)?1:0}, servObject, true);
+    const org = login.getOrg(headers), result = await register.addUser({pwph: '', id: jsonReq.new_id, 
+        name: jsonReq.name, org, totpSecret: totp.getSecret(), lang: jsonReq.lang, role: jsonReq.role, 
+        verifyEmail : 0, approved: (jsonReq.approved==true||jsonReq.approved==1)?1:0}, servObject, true);
 
     if (result?.result) {
         LOG.info(`User registered ${jsonReq.name}, ID: ${jsonReq.new_id}, by admin with ID: ${login.getID(headers)}, emailing them initial login instructions.`); 
@@ -41,5 +41,6 @@ exports.doService = async (jsonReq, servObject, headers) => {
     }
 }
  
-const validateRequest = jsonReq => (jsonReq && jsonReq.new_id && jsonReq.name && jsonReq.role && jsonReq.approved && jsonReq.lang);
+const validateRequest = jsonReq => (jsonReq && jsonReq.new_id && jsonReq.name && jsonReq.role && 
+    (jsonReq.approved != undefined) && jsonReq.lang);
  

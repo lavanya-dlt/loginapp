@@ -15,7 +15,7 @@ exports.doService = async jsonReq => {
 	if (result?.result) for (const domain of registeredDomainsForOrg) 
 		if (domain.toLowerCase() != result.domain.toLowerCase()) alternate_domains.push(domain);
 	if (result?.result) for (const suborg of suborgsForOrg) 
-		if (suborg.toLowerCase() != result.org.toLowerCase()) alternate_names.push(suborg);
+		if (suborg.toLowerCase() != result.name.toLowerCase()) alternate_names.push(suborg);
 
 	if (result.result) LOG.info(`Sending data for org ${jsonReq.org} as ${JSON.stringify(result)}.`); 
 	else LOG.error(`Unable to find org with name ${jsonReq.org}, DB error.`);

@@ -33,20 +33,18 @@ exports.addUser = async (jsonReq, servObject, byAdmin=false) => {
 		return {...CONSTANTS.FALSE_RESULT, reason: REASONS.OTP_ERROR};
 	}
 
-	await exports.updateOrgAndDomain(jsonReq);	// set domain and override org if needed
+	await exports.updateOrgAndDomain(jsonReq);
 
 	if (!await exports.checkOrgAndDomainMatch(jsonReq)) {	// security check for org and domain match
 		LOG.error(`Unable to register: ${jsonReq.name}, ID: ${jsonReq.id}, security error, org and domain mismatch.`);
 		return {...CONSTANTS.FALSE_RESULT, reason: REASONS.SECURITY_ERROR};
 	}
 
-	const existingUsersForDomain = await userid.getUsersForDomain(exports.getRootDomain(jsonReq)), 
-		existingUsersForOrg = await userid.getUsersForOrgOrSuborg(jsonReq.org), 
-		notFirstUserForThisDomain = existingUsersForDomain && existingUsersForDomain.result && existingUsersForDomain.users.length,
-		notFirstUserForThisOrg = existingUsersForOrg && existingUsersForOrg.result && existingUsersForOrg.users.length,
+	const rootOrg = await userid.getRootOrgForDomain(exports.getRootDomain(jsonReq)),	// rootOrg is null if domain is whitelisted but first registration for the org
+		existingUsersForThisUsersRootOrg = rootOrg?await userid.getUsersForRootOrg(rootOrg):false,
 		approved = byAdmin ? jsonReq.approved : (APP_CONSTANTS.CONF.new_users_need_approval_from_admin?
-			(notFirstUserForThisOrg||notFirstUserForThisDomain?0:1) : 1),
-		role = byAdmin ? jsonReq.role : (notFirstUserForThisOrg||notFirstUserForThisDomain?"user":"admin"), 
+			(existingUsersForThisUsersRootOrg?0:1) : 1),
+		role = byAdmin ? jsonReq.role : (existingUsersForThisUsersRootOrg?"user":"admin"), 
 		verifyEmail = byAdmin ? jsonReq.verifyEmail : (APP_CONSTANTS.CONF.verify_email_on_registeration ? 1 : 0);
 
 	const result = await userid.register(jsonReq.id, jsonReq.name, jsonReq.org, jsonReq.pwph, jsonReq.totpSecret, role, 
@@ -83,17 +81,18 @@ exports.addUser = async (jsonReq, servObject, byAdmin=false) => {
 }
 
 exports.updateOrgAndDomain = async jsonReq => {
-	const rootDomain = exports.getRootDomain(jsonReq);
-
-	// if this root domain already has users, override the org to the existing organization for this 
-	// domain's users
-	const existingUsersForDomain = await userid.getUsersForDomain(rootDomain);
-	const fixedOrg = (existingUsersForDomain && existingUsersForDomain.result && 
-		existingUsersForDomain.users.length) ? (await userid.getOrgForDomain(rootDomain)) : jsonReq.org;
-		
-	jsonReq.domain = rootDomain; jsonReq.org = fixedOrg;
+	const rootDomain = exports.getRootDomain(jsonReq), rootOrg = await userid.getRootOrgForDomain(rootDomain);
+	
 	LOG.info(`Set domain for ${jsonReq.id} to ${rootDomain}.`); 
-	if (fixedOrg != jsonReq.org) LOG.info(`Adjusted org for ${jsonReq.id} from ${jsonReq.org} to ${fixedOrg}.`); 
+	jsonReq.domain = rootDomain;
+	
+	if (!rootOrg) return;	// can't update to any other org, since domain is allowed this is probably first registration
+	
+	const suborgsForOrg = _arrayToLowercase(await userid.getSubOrgs(rootOrg));
+	if (!suborgsForOrg.includes(jsonReq.org.toLowerCase())) {	// if the incoming org is not recognized set it to root org
+		LOG.info(`Adjusted org for ${jsonReq.id} from ${jsonReq.org} to ${rootOrg}.`); 
+		jsonReq.org = rootOrg;
+	}
 }
 
 exports.getRootDomain = function(jsonReq, idProperty="id") {
@@ -108,14 +107,13 @@ exports.shouldAllowDomain = async function(jsonReq, idProperty) {
 }
 
 exports.checkOrgAndDomainMatch = async function (jsonReq, idProperty, mustHaveDomains) {
-	const rootDomain = exports.getRootDomain(jsonReq, idProperty), rootOrg = await userid.getRootOrg(jsonReq.org),
-		domainsForOrg = await userid.getDomainsForOrg(rootOrg||jsonReq.org);
+	const rootDomain = exports.getRootDomain(jsonReq, idProperty).toLowerCase(), 
+		rootOrg = await userid.getRootOrg(jsonReq.org), 
+		domainsForOrg = _arrayToLowercase(await userid.getDomainsForOrg(rootOrg||jsonReq.org));
 	// if this organization currently has no domains registered then return true unless caller insists we must have domains
 	if ((!domainsForOrg) || (!domainsForOrg.length)) if (mustHaveDomains) return false; else return true;
 
-	if (domainsForOrg.includes[rootDomain]) return true;	// matches
-	for (const domainToCheck of domainsForOrg) if (domainToCheck.includes(rootDomain) || rootDomain.includes(domainToCheck)) return true;
-	return false;	// the email doesn't match any known domains for this org and is not a subset or superset of them either
+	if (domainsForOrg.includes(rootDomain)) return true;	// matches
 }
 
 exports.addNewUserListener = listener => newUserListeners.push(listener);
@@ -148,6 +146,11 @@ async function _emailAdminNewRegistration(id, name, org, lang) {
 		email_text = mustache.render(emailTemplate[`${lang||"en"}_newregistrationemail_text`], {adminname, org, name, id, action_url});
 		if (!(await mailer.email(email, email_title, email_html, email_text))) LOG.error(`Unable to notify the admin at ${email} for the new user registration of ID ${id}.`);
 	}
+}
+
+const _arrayToLowercase = array => {
+	if (!array) return array;
+	const retArray = []; for (const element of array) retArray.push(element.toLowerCase()); return retArray;
 }
 
 const validateRequest = jsonReq => (jsonReq && jsonReq.pwph && jsonReq.id && jsonReq.name && jsonReq.org && 

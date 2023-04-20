@@ -15,13 +15,15 @@ exports.doService = async jsonReq => {
 		return {...CONSTANTS.FALSE_RESULT, reason: register.REASONS.DOMAIN_ERROR};
 	}
 
-	const result = await userid.addOrUpdateOrg(jsonReq.org, jsonReq.primary_contact_name, jsonReq.primary_contact_email, 
-		jsonReq.address, jsonReq.domain, jsonReq.alternate_names, jsonReq.alternate_domains);
+	const result = await userid.addOrUpdateOrg(jsonReq.org, jsonReq.new_org||jsonReq.org, 
+		jsonReq.primary_contact_name, jsonReq.primary_contact_email, jsonReq.address, jsonReq.domain, 
+		jsonReq.alternate_names, jsonReq.alternate_domains);
 	result.org = result.name; delete result.name; 
 
 	if (result.result) {	// update done successfully
 		LOG.info(`Org added or updated ${result.org}, `); 
-		return {...CONSTANTS.TRUE_RESULT, ...result};
+		return {...CONSTANTS.TRUE_RESULT, ...result, id: jsonReq.id, org: jsonReq.new_org||jsonReq.org, 
+			role: APP_CONSTANTS.ROLES.ADMIN};	// as this call regens the JWT token due to org name change
 	}
 	else {	// DB or internal error
 		LOG.error(`Unable to add or update org ${jsonReq.org} DB error.`);

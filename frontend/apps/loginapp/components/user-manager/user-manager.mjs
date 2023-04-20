@@ -93,13 +93,13 @@ async function addUser(element) {
 async function editUser(name, old_id, role, approved, element) {
 	const roles = []; for (const thisrole of conf.roles) roles.push({label:await i18n.get(thisrole), value: thisrole, selected: thisrole==role?true:undefined});
 	monkshu_env.components['dialog-box'].showDialog(`${COMPONENT_PATH}/dialogs/addeditprofile.html`, true, true, 
-			{name, old_id, role, approved:approved==1?true:undefined, roles, CONF:conf, 
+			{name, old_id, role, approved:approved==1?true:undefined, roles, CONF:conf, doNotAllowIDChange: true,
 				doNotAllowRoles:old_id==session.get(conf.userid_session_variable).toString()?true:undefined, 
 				doNotAllowApproval:old_id==session.get(conf.userid_session_variable).toString()?true:undefined, 
 				COMPONENT_PATH}, "dialog", ["name", "new_id", "role", "approved", "old_id"], async ret => {
 		
 		const req = {...ret, approved: ret.approved.toLowerCase() == "true" ? true:false, 
-			id: session.get(conf.userid_session_variable).toString()}; 
+			id: session.get(conf.userid_session_variable).toString(), org: session.get(conf.userorg_session_variable).toString()}; 
 		const backendURL = user_manager.getHostElement(element).getAttribute("backendurl");
 		const editResult = await _callBackendAPIShowingSpinner(`${backendURL}/${API_EDITUSER}`, req);
 		if (!editResult?.result) {
@@ -132,22 +132,29 @@ async function editOrg(org, element) {
 		const _jsonListValuesToStringArray = list => {const retList = []; for (const item of JSON.parse(list)) 
 			retList.push(item.label); return retList;}
 		ret.orgnames = _jsonListValuesToStringArray(ret.orgnames); ret.orgdomains = _jsonListValuesToStringArray(ret.orgdomains); 
-		const req = {id: session.get(conf.userid_session_variable).toString(), org: ret.orgname, 
+		const req = {id: session.get(conf.userid_session_variable).toString(), 
+			org: session.get(conf.userorg_session_variable).toString(), new_org: ret.orgname, 
 			primary_contact_name: ret.orgcontactname, primary_contact_email: ret.orgcontactemail, address: ret.orgaddress, 
 			domain: ret.orgdomain, alternate_names: ret.orgnames, alternate_domains: ret.orgdomains}; 
 		const backendURL = user_manager.getHostElement(element).getAttribute("backendurl");
-		const editResult = await _callBackendAPIShowingSpinner(`${backendURL}/${API_UPDATE_ORG}`, req);
+		const editResult = await _callBackendAPIShowingSpinner(`${backendURL}/${API_UPDATE_ORG}`, req, "POST", true, true);
 		if (!(editResult?.result)) { 
 			const key = !editResult ? "Internal" : editResult.reason == "internal" ? "Internal" : editResult.reason == "domainerror" ? "Domain" : "Internal";
 			const err = await i18n.get(`OrgEditError${key}`); LOG.error(err); monkshu_env.components['dialog-box'].error("dialog", err); 
-		} else { monkshu_env.components['dialog-box'].hideDialog("dialog"); user_manager.reload(user_manager.getHostElementID(element)); }
+		} else { 
+			session.set(conf.userorg_session_variable, ret.orgname);	// update org name for the current user
+			monkshu_env.components['dialog-box'].hideDialog("dialog"); 
+			user_manager.reload(user_manager.getHostElementID(element)); 
+		}
 	});
 }
 
 async function _deleteUser(name, id, element) {
 	const host = user_manager.getHostElement(element), logoutcommand = host.getAttribute("logoutcommand"), backendURL = host.getAttribute("backendurl");
 	_execOnConfirm(mustache_instance.render(await i18n.get("ConfirmUserDelete"), {name, id}), async _ =>{
-		const deleteResult = await apiman.rest(`${backendURL}/${API_DELETEUSER}`, "GET", {name, id}, true);
+		const deleteResult = await apiman.rest(`${backendURL}/${API_DELETEUSER}`, "GET", 
+			{name, userid: id, id: session.get(conf.userid_session_variable).toString(), 
+				org: session.get(conf.userorg_session_variable).toString()}, true);
 		if (!deleteResult?.result) {const err = mustache_instance.render(await i18n.get("DeleteError"), {name, id}); LOG.error(err); _showError(err);}
 		else {
 			if (id==session.get(conf.userid_session_variable).toString() && logoutcommand) eval(logoutcommand);	// user deleted themselves, logout!
@@ -167,8 +174,8 @@ async function _resetUser(name, id, element) {
 
 async function _approveUser(name, id, element) {
 	const backendURL = user_manager.getHostElement(element).getAttribute("backendurl");
-	const approveResult = await apiman.rest(`${backendURL}/${API_APPROVEUSER}`, "GET", {id, 
-		org: session.get(conf.userorg_session_variable).toString()}, true);
+	const approveResult = await apiman.rest(`${backendURL}/${API_APPROVEUSER}`, "GET", {id, name,
+		lang: i18n.getSessionLang(), org: session.get(conf.userorg_session_variable).toString()}, true);
 	if (!approveResult?.result) {
 		const err = mustache_instance.render(await i18n.get("ApproveError"), {name, id}); 
 		LOG.error(err); _showError(err);
@@ -189,10 +196,10 @@ function _createData(host, users) {
 	return data;
 }
 
-const _callBackendAPIShowingSpinner = async (url, req, method="POST", sendToken=true) => {
+const _callBackendAPIShowingSpinner = async (url, req, method="POST", sendToken=true, extractToken) => {
 	const dialogShadowRoot = monkshu_env.components['dialog-box'].getShadowRootByHostId("dialog");
 	dialogShadowRoot.querySelector("span#spinner").classList.add("visible");
-	const result = await apiman.rest(url, method, req, sendToken);
+	const result = await apiman.rest(url, method, req, sendToken, extractToken);
 	dialogShadowRoot.querySelector("span#spinner").classList.remove("visible");
 	return result;
 }

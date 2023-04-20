@@ -10,21 +10,22 @@ const jwttokenmanager = APIREGISTRY.getExtension("JWTTokenManager");
 const queueExecutor = require(`${CONSTANTS.LIBDIR}/queueExecutor.js`);
 
 const DEFAULT_QUEUE_DELAY = 500, REASONS = {BAD_PASSWORD: "badpw", BAD_ID: "badid", BAD_OTP: "badotp", 
-	BAD_APPROVAL: "notapproved", OK: "allok", UNKNOWN: "unknown", DOMAIN_ERROR: "domainerror"};
+	BAD_APPROVAL: "notapproved", OK: "allok", UNKNOWN: "unknown", DOMAIN_ERROR: "domainerror"}, 
+	LOGINS_MEMORY_KEY = "__org_monkshu_loginapp_logins";
 
 exports.init = _ => {
 	jwttokenmanager.addListener((event, object) => {
 		if (event == "token_generated") try {
 			const token = ("Bearer "+object.token).toLowerCase(); 
-			const logins = CLUSTER_MEMORY.get("__org_monkshu_loginapp_logins") || {};
+			const logins = CLUSTER_MEMORY.get(LOGINS_MEMORY_KEY) || {};
 			logins[token] = {id: object.response.id, org: object.response.org, name: object.response.name, role: object.response.role}; 
-			CLUSTER_MEMORY.set("__org_monkshu_loginapp_logins", logins);
+			CLUSTER_MEMORY.set(LOGINS_MEMORY_KEY, logins);
 		} catch (err) {LOG.error(`Could not init home for the user with ID ${object.response.id}, name ${object.response.name}, error was: ${err}`);}
 
 		if (event == "token_expired") {
-			const logins = CLUSTER_MEMORY.get("__org_monkshu_loginapp_logins") || {};
+			const logins = CLUSTER_MEMORY.get(LOGINS_MEMORY_KEY) || {};
 			const token = ("Bearer "+object.token).toLowerCase();
-			delete logins[token]; CLUSTER_MEMORY.set("__org_monkshu_loginapp_logins", logins);
+			delete logins[token]; CLUSTER_MEMORY.set(LOGINS_MEMORY_KEY, logins);
 		}
 	});
 }
@@ -66,17 +67,17 @@ exports.doService = async (jsonReq, servObject) => {
 }
 
 exports.getID = headers => {
-	if (!headers["authorization"]) return null; const logins = CLUSTER_MEMORY.get("__org_monkshu_loginapp_logins") || {};
+	if (!headers["authorization"]) return null; const logins = CLUSTER_MEMORY.get(LOGINS_MEMORY_KEY) || {};
 	return logins[headers["authorization"].toLowerCase()]?logins[headers["authorization"].toLowerCase()].id:null;
 }
 
 exports.getOrg = headers => {
-	if (!headers["authorization"]) return null; const logins = CLUSTER_MEMORY.get("__org_monkshu_loginapp_logins") || {};
+	if (!headers["authorization"]) return null; const logins = CLUSTER_MEMORY.get(LOGINS_MEMORY_KEY) || {};
 	return logins[headers["authorization"].toLowerCase()]?logins[headers["authorization"].toLowerCase()].org:null;
 }
 
 exports.getRole = headers => {
-	if (!headers["authorization"]) return null; const logins = CLUSTER_MEMORY.get("__org_monkshu_loginapp_logins") || {};
+	if (!headers["authorization"]) return null; const logins = CLUSTER_MEMORY.get(LOGINS_MEMORY_KEY) || {};
 	return logins[headers["authorization"].toLowerCase()]?logins[headers["authorization"].toLowerCase()].role:null;
 }
 

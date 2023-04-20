@@ -45,7 +45,7 @@ async function signin(id, pass, otp) {
 const reset = id => apiman.rest(APP_CONSTANTS.API_RESET, "GET", {id, lang: i18n.getSessionLang()});
 
 async function registerOrUpdate(old_id, name, id, pass, org, totpSecret, totpCode, role, approved) {
-    const pwph = `${id} ${pass||session.get("__org_telemeet_cuser_pass")}`, isUpdate = old_id?true:false;
+    const pwph = `${id} ${pass||session.get("__org_monkshu_cuser_pass")}`, isUpdate = old_id?true:false;
 
     const req = {old_id, name, id: (isUpdate && session.get(APP_CONSTANTS.USERID))?session.get(APP_CONSTANTS.USERID):id, 
         pwph, org, totpSecret, totpCode, role, approved, lang: i18n.getSessionLang(), new_id: isUpdate?id:undefined}; 
@@ -99,7 +99,7 @@ async function logout(dueToTimeout) {
 
     const savedLang = session.get($$.MONKSHU_CONSTANTS.LANG_ID);
     session.remove(APP_CONSTANTS.USERID); session.remove(APP_CONSTANTS.USERNAME);
-    session.remove(APP_CONSTANTS.USERORG); session.remove("__org_telemeet_cuser_pass");
+    session.remove(APP_CONSTANTS.USERORG); session.remove("__org_monkshu_cuser_pass");
     session.set($$.MONKSHU_CONSTANTS.LANG_ID, savedLang); securityguard.setCurrentRole(APP_CONSTANTS.GUEST_ROLE);
     
     if (dueToTimeout) application.main(APP_CONSTANTS.ERROR_HTML, {error: await i18n.get("Timeout_Error"), 
