@@ -1,5 +1,5 @@
-# XBin
-XBin - Enterprise Content Platform
+# Login App
+A shell login webapp
 
 Getting Started
 ===============
@@ -12,9 +12,8 @@ Step 6: Browse to http://<your IP>:8080/apps/xbin/index.html
 
 Optional Step
 =============
-Modify /frontend/framework/conf/default_app.json to "xbin" and then http://<your IP>:8080 should auto redirect.
+Modify /frontend/framework/conf/default_app.json to "loginapp" and then http://[your IP]:8080 should auto redirect.
 
 Login
 =====
-ID: tekmonks
-Password: tekmonks
+Register an account via the Register page.
