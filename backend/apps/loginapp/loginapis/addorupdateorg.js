@@ -21,7 +21,7 @@ exports.doService = async jsonReq => {
 	result.org = result.name; delete result.name; 
 
 	if (result.result) {	// update done successfully
-		LOG.info(`Org added or updated ${result.org}, `); 
+		LOG.info(`Org added or updated ${result.org}.`); 
 		return {...CONSTANTS.TRUE_RESULT, ...result, id: jsonReq.id, org: jsonReq.new_org||jsonReq.org, 
 			role: APP_CONSTANTS.ROLES.ADMIN};	// as this call regens the JWT token due to org name change
 	}

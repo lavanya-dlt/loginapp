@@ -251,6 +251,7 @@ exports.deleteSuborg = async suborg => {
 	const suborgDeletionResult = await db.runCmd("DELETE FROM suborgs WHERE name = ?", [suborg]);
 
 	if (suborgDeletionResult) {	// if suborg is deleted then drop all its users too
+		if (usersForSuborg.users.length) LOG.warn(`Dropping these users as the suborg ${suborg} which they belonged to was deleted. User list -> ${JSON.stringify(usersForSuborg.users)}.`);
 		for (const user of usersForSuborg.users) if (!(await exports.deleteUser(user.id)).result)
 			LOG.warn(`Deletion of suborg ${org} orphaned user ${user.id} as deletion of this user failed. Database is inconsistent.`);
 	}
@@ -266,6 +267,7 @@ exports.deleteDomain = async domain => {
 	const domainDeletionResult = await db.runCmd("DELETE FROM domains WHERE domain = ?", [domain]);
 
 	if (domainDeletionResult) {	// if domain is deleted then drop all its users too
+		if (usersForDomain.users.length) LOG.warn(`Dropping these users as the domain ${domain} which they belonged to was deleted. User list -> ${JSON.stringify(usersForDomain.users)}.`);
 		for (const user of usersForDomain.users) if (!(await exports.deleteUser(user.id)).result)
 			LOG.warn(`Deletion of domain ${domain} orphaned user ${user.id} as deletion of this user failed.`);
 	}
