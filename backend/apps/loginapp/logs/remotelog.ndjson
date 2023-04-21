@@ -252,3 +252,5 @@
 {"ts":"2023:04:21:14:39:02","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
 {"ts":"2023:04:21:14:39:28","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
 {"ts":"2023:04:21:16:56:38","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:22:04:18:00","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:22:04:18:28","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}

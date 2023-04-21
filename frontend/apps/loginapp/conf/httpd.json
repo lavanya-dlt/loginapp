@@ -4,13 +4,13 @@
     ],
     "redirects": [
         {
-            "^http(.*)://([^/]+?)/index.html$": "http{{{$1}}}://{{{$2}}}/apps/loginapp/index.html"
+            "^http(.*)://([^/]+?)/index.html$": "http{{{$1}}}://{{{$2}}}/apps/loginapp/loginappframework/index.html"
         },
         {
-            "^http(.*)://([^/]+?)/$": "http{{{$1}}}://{{{$2}}}/apps/loginapp/index.html"
+            "^http(.*)://([^/]+?)/$": "http{{{$1}}}://{{{$2}}}/apps/loginapp/loginappframework/index.html"
         },
         {
-            "^http(.*)://([^/]+?)$": "http{{{$1}}}://{{{$2}}}/apps/loginapp/index.html"
+            "^http(.*)://([^/]+?)$": "http{{{$1}}}://{{{$2}}}/apps/loginapp/loginappframework/index.html"
         }
     ],
     "diskCache": {
