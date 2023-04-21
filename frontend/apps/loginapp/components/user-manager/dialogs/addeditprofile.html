@@ -119,13 +119,11 @@ img#spinner {height: 2em; width: 2em;}
     oninvalid="this.setCustomValidity('{{i18n.FillField}}')" oninput="setCustomValidity('')">
 <input type="hidden" id="old_id" value="{{old_id}}">
 
-{{^doNotAllowRoles}}
-<select id="role" value="{{role}}" required>
+<select id="role" value="{{role}}" required {{#doNotAllowRoles}}disabled="true"{{/doNotAllowRoles}}>
     {{#roles}}
     <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
     {{/roles}}
 </select>
-{{/doNotAllowRoles}}
 
 {{^doNotAllowApproval}}
 <span id="toggler">
@@ -133,6 +131,9 @@ img#spinner {height: 2em; width: 2em;}
     <input class="tgl tgl-ios" id="approved" type="checkbox" onclick='this.value=this.checked' {{#approved}}checked{{/approved}} value='{{#approved}}true{{/approved}}{{^approved}}false{{/approved}}'>
     <label class="tgl-btn" for="approved">
 </span>
+{{/doNotAllowApproval}}
+{{#doNotAllowApproval}}
+    <input type="hidden" id="approved" value='{{#approved}}true{{/approved}}{{^approved}}false{{/approved}}'>
 {{/doNotAllowApproval}}
 
 <span id="spinner"><img id="spinner" src="{{{COMPONENT_PATH}}}/img/spinner.svg"></span>

@@ -85,7 +85,10 @@ function submit(element) {
     const memory = dialog_box.getMemoryByContainedElement(element);
 
     if (memory.retValIDs && memory.callback) {
-        const ret = {}; const shadowRoot = dialog_box.getShadowRootByContainedElement(element);
+        const shadowRoot = dialog_box.getShadowRootByContainedElement(element);
+        if (!_validateDialogInputs(memory.retValIDs, shadowRoot)) return;
+
+        const ret = {}; 
         for (const retValId of memory.retValIDs) ret[retValId] = shadowRoot.querySelector(`#${retValId}`)?shadowRoot.querySelector(`#${retValId}`).value:null;
         memory.callback(ret);
     } else if (memory.callback) memory.callback();
@@ -117,6 +120,16 @@ function _showDialogInternal(templateHTML, showOK, showCancel, hostID, retValIDs
     
     const memory = dialog_box.getMemory(hostID); memory.retValIDs = retValIDs; 
     memory.callback = callback; memory.callbackCancel = callbackCancel;
+}
+
+function _validateDialogInputs(retValIDs, shadowRoot) {
+    const retVal = true;
+    for (const retValId of retValIDs) {
+        const elementThis = shadowRoot.querySelector(`#${retValId}`);
+        if (elementThis) if (elementThis.checkValidity && (!elementThis.checkValidity())) {
+            elementThis.reportValidity(); retVal = false; }
+    }
+    return retVal;
 }
 
 function _resetUI(shadowRoot) {
