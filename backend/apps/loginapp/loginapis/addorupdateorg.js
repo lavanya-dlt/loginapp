@@ -32,5 +32,5 @@ exports.doService = async jsonReq => {
 }
 
 const validateRequest = jsonReq => (jsonReq && jsonReq.id && jsonReq.org && jsonReq.primary_contact_name && 
-	jsonReq.primary_contact_email && jsonReq.address && jsonReq.domain && jsonReq.alternate_names && 
+	jsonReq.primary_contact_email && jsonReq.address != undefined && jsonReq.domain && jsonReq.alternate_names && 
 	jsonReq.alternate_domains);

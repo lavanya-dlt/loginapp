@@ -123,7 +123,7 @@ async function editOrg(org, element) {
 		id: session.get(conf.userid_session_variable).toString(), org}, true);
 	if ((!orgDetails) || (!orgDetails.result)) {const err = await i18n.get("OrgFetchError"); LOG.error(err); _showError(err); return;}
 	
-	const dontCheckUserDrops = false;
+	let dontCheckUserDrops = false;
 	monkshu_env.components['dialog-box'].showDialog(`${COMPONENT_PATH}/dialogs/editorg.html`, true, true, 
 		{orgname: orgDetails.name, orgaddress: orgDetails.address, orgcontactname: orgDetails.primary_contact_name, 
 			orgcontactemail: orgDetails.primary_contact_email, orgdomain: orgDetails.domain, 
@@ -142,7 +142,7 @@ async function editOrg(org, element) {
 		}
 		const req = {id: session.get(conf.userid_session_variable).toString(), 
 			org: session.get(conf.userorg_session_variable).toString(), new_org: ret.orgname, 
-			primary_contact_name: ret.orgcontactname, primary_contact_email: ret.orgcontactemail, address: ret.orgaddress, 
+			primary_contact_name: ret.orgcontactname, primary_contact_email: ret.orgcontactemail, address: ret.orgaddress||"", 
 			domain: ret.orgdomain, alternate_names: ret.orgnames, alternate_domains: ret.orgdomains}; 
 		const backendURL = user_manager.getHostElement(element).getAttribute("backendurl");
 		const editResult = await _callBackendAPIShowingSpinner(`${backendURL}/${API_UPDATE_ORG}`, req, "POST", true, true);

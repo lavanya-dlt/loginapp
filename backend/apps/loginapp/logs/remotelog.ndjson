@@ -244,3 +244,10 @@
 {"ts":"2023:04:21:03:16:40","level":"error","message":"[192.168.1.17] Can't fetch the list of users for the org, API returned false."}
 {"ts":"2023:04:21:03:16:49","level":"info","message":"[192.168.1.17] Logout of user ID: thecompany@tekmonks.com."}
 {"ts":"2023:04:21:03:17:08","level":"warning","message":"[192.168.1.17] Bad ID given for thecompany@tekmonks.com."}
+{"ts":"2023:04:21:14:31:53","level":"info","message":"[192.168.1.15] Registration succeeded thecompany@tekmonks.com."}
+{"ts":"2023:04:21:14:32:29","level":"error","message":"[192.168.1.15] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:21:14:37:40","level":"error","message":"[192.168.1.15] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:21:14:37:53","level":"error","message":"[192.168.1.15] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:21:14:38:32","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:21:14:39:02","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:21:14:39:28","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
