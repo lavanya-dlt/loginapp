@@ -5,6 +5,7 @@
 const FRONTEND = "https://{{{hostname}}}";
 const BACKEND = "https://{{{hostname}}}:9090";
 const APP_NAME = "loginapp";
+const EMBEDDED_APP_NAME = "demoapp";
 const APP_PATH = `${FRONTEND}/apps/${APP_NAME}`;
 const LOGINAPP_PATH = `${APP_PATH}/loginappframework`;
 const CONF_PATH = `${LOGINAPP_PATH}/conf`;
@@ -12,7 +13,7 @@ const COMPONENTS_PATH = `${LOGINAPP_PATH}/components`;
 const API_PATH = `${BACKEND}/apps/${APP_NAME}`;
 
 export const APP_CONSTANTS = {
-    FRONTEND, BACKEND, APP_PATH, APP_NAME, COMPONENTS_PATH, API_PATH, CONF_PATH, LOGINAPP_PATH,
+    FRONTEND, BACKEND, APP_PATH, APP_NAME, COMPONENTS_PATH, API_PATH, CONF_PATH, LOGINAPP_PATH, EMBEDDED_APP_NAME,
     MAIN_HTML: LOGINAPP_PATH+"/main.html",
     LOGIN_HTML: LOGINAPP_PATH+"/login.html",
     INDEX_HTML: LOGINAPP_PATH+"/index.html",
@@ -52,9 +53,25 @@ export const APP_CONSTANTS = {
     GUEST_ROLE: "guest",
     ADMIN_ROLE: "admin",
     PERMISSIONS_MAP: {
-        user:[window.location.origin, LOGINAPP_PATH+"/index.html", LOGINAPP_PATH+"/download.html", LOGINAPP_PATH+"/error.html", LOGINAPP_PATH+"/verify.html", LOGINAPP_PATH+"/main.html", LOGINAPP_PATH+"/reset.html", LOGINAPP_PATH+"/initiallogin.html", LOGINAPP_PATH+"/register.html", LOGINAPP_PATH+"/notapproved.html", LOGINAPP_PATH+"/loginroom.html", LOGINAPP_PATH+"/login.html", $$.MONKSHU_CONSTANTS.ERROR_HTML], 
-        admin:[window.location.origin, LOGINAPP_PATH+"/index.html", LOGINAPP_PATH+"/download.html", LOGINAPP_PATH+"/error.html", LOGINAPP_PATH+"/verify.html", LOGINAPP_PATH+"/main.html", LOGINAPP_PATH+"/reset.html", LOGINAPP_PATH+"/initiallogin.html", LOGINAPP_PATH+"/register.html", LOGINAPP_PATH+"/notapproved.html", LOGINAPP_PATH+"/loginroom.html", LOGINAPP_PATH+"/login.html", LOGINAPP_PATH+"/manage.html", $$.MONKSHU_CONSTANTS.ERROR_HTML],
-        guest:[window.location.origin, LOGINAPP_PATH+"/index.html", LOGINAPP_PATH+"/download.html", LOGINAPP_PATH+"/error.html", LOGINAPP_PATH+"/verify.html", LOGINAPP_PATH+"/reset.html", LOGINAPP_PATH+"/initiallogin.html", LOGINAPP_PATH+"/register.html", LOGINAPP_PATH+"/notapproved.html", LOGINAPP_PATH+"/login.html", LOGINAPP_PATH+"/loginroom.html", $$.MONKSHU_CONSTANTS.ERROR_HTML]
+        user:[window.location.origin, LOGINAPP_PATH+"/index.html", 
+            LOGINAPP_PATH+"/download.html", LOGINAPP_PATH+"/error.html", LOGINAPP_PATH+"/verify.html", 
+            LOGINAPP_PATH+"/main.html", LOGINAPP_PATH+"/reset.html", LOGINAPP_PATH+"/initiallogin.html", 
+            LOGINAPP_PATH+"/register.html", LOGINAPP_PATH+"/notapproved.html", 
+            LOGINAPP_PATH+"/loginroom.html", LOGINAPP_PATH+"/login.html", $$.MONKSHU_CONSTANTS.ERROR_HTML,
+            `${APP_PATH}/${EMBEDDED_APP_NAME}/*.html`],
+
+        admin:[window.location.origin, LOGINAPP_PATH+"/index.html", LOGINAPP_PATH+"/download.html", 
+            LOGINAPP_PATH+"/error.html", LOGINAPP_PATH+"/verify.html", LOGINAPP_PATH+"/main.html", 
+            LOGINAPP_PATH+"/reset.html", LOGINAPP_PATH+"/initiallogin.html", LOGINAPP_PATH+"/register.html", 
+            LOGINAPP_PATH+"/notapproved.html", LOGINAPP_PATH+"/loginroom.html", LOGINAPP_PATH+"/login.html", 
+            LOGINAPP_PATH+"/manage.html", $$.MONKSHU_CONSTANTS.ERROR_HTML, 
+            `${APP_PATH}/${EMBEDDED_APP_NAME}/*.html`],
+
+        guest:[window.location.origin, LOGINAPP_PATH+"/index.html", LOGINAPP_PATH+"/download.html", 
+            LOGINAPP_PATH+"/error.html", LOGINAPP_PATH+"/verify.html", LOGINAPP_PATH+"/reset.html", 
+            LOGINAPP_PATH+"/initiallogin.html", LOGINAPP_PATH+"/register.html", 
+            LOGINAPP_PATH+"/notapproved.html", LOGINAPP_PATH+"/login.html", LOGINAPP_PATH+"/loginroom.html", 
+            $$.MONKSHU_CONSTANTS.ERROR_HTML]
     },
 
     API_KEYS: {"*":"fheiwu98237hjief8923ydewjidw834284hwqdnejwr79389"},

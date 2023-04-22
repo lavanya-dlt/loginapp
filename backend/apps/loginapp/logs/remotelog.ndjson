@@ -254,3 +254,13 @@
 {"ts":"2023:04:21:16:56:38","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
 {"ts":"2023:04:22:04:18:00","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
 {"ts":"2023:04:22:04:18:28","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:22:16:33:22","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:22:16:34:44","level":"error","message":"[192.168.1.15] Error in initializing embeded app demoapp."}
+{"ts":"2023:04:22:16:35:36","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:22:16:38:48","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:22:16:39:06","level":"error","message":"[192.168.1.15] Error in initializing embeded app demoapp."}
+{"ts":"2023:04:22:16:39:32","level":"error","message":"[192.168.1.15] Error in initializing embeded app demoapp."}
+{"ts":"2023:04:22:16:39:59","level":"error","message":"[192.168.1.15] Error in initializing embeded app demoapp, error is Error: Not allowed: Security Exception."}
+{"ts":"2023:04:22:16:42:37","level":"error","message":"[192.168.1.15] Error in initializing embeded app demoapp, error is Error: Not allowed: Security Exception."}
+{"ts":"2023:04:22:16:42:47","level":"error","message":"[192.168.1.15] Error in initializing embeded app demoapp, error is Error: Not allowed: Security Exception."}
+{"ts":"2023:04:22:16:46:30","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}

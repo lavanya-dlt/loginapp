@@ -75,6 +75,12 @@ const logoutClicked = _ => loginmanager.logout();
 
 const interceptPageData = _ => router.addOnLoadPageData(APP_CONSTANTS.MAIN_HTML, async data => {   // set admin role if applicable
     if (securityguard.getCurrentRole()==APP_CONSTANTS.ADMIN_ROLE) data.admin = true; 
+    
+    const embeddedAppName = APP_CONSTANTS.EMBEDDED_APP_NAME?APP_CONSTANTS.EMBEDDED_APP_NAME.trim():undefined;
+    if (embeddedAppName) try { 
+        const embeddedappMainMJS = await import(`${APP_CONSTANTS.APP_PATH}/${embeddedAppName}/js/${embeddedAppName}.mjs`); 
+        data.maincontent = await embeddedappMainMJS[embeddedAppName].main(data, main); 
+    } catch (err) { LOG.error(`Error in initializing embeded app ${embeddedAppName}, error is ${err}.`); }
 });
 
 async function _getTOTPQRCode(key) {

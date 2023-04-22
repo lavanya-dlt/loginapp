@@ -9,9 +9,9 @@ const register = require(`${APP_CONSTANTS.API_DIR}/register.js`);
 const jwttokenmanager = APIREGISTRY.getExtension("JWTTokenManager");
 const queueExecutor = require(`${CONSTANTS.LIBDIR}/queueExecutor.js`);
 
-const DEFAULT_QUEUE_DELAY = 500, REASONS = {BAD_PASSWORD: "badpw", BAD_ID: "badid", BAD_OTP: "badotp", 
-	BAD_APPROVAL: "notapproved", OK: "allok", UNKNOWN: "unknown", DOMAIN_ERROR: "domainerror"}, 
-	LOGINS_MEMORY_KEY = "__org_monkshu_loginapp_logins";
+const DEFAULT_QUEUE_DELAY = 500, LOGIN_LISTENERS = [], LOGINS_MEMORY_KEY = "__org_monkshu_loginapp_logins",
+	REASONS = { BAD_PASSWORD: "badpw", BAD_ID: "badid", BAD_OTP: "badotp", BAD_APPROVAL: "notapproved", 
+		OK: "allok", UNKNOWN: "unknown", DOMAIN_ERROR: "domainerror" };
 
 exports.init = _ => {
 	jwttokenmanager.addListener((event, object) => {
@@ -29,6 +29,10 @@ exports.init = _ => {
 		}
 	});
 }
+
+exports.addLoginListener = listener => LOGIN_LISTENERS.push(listener);
+exports.removeLoginListener = listener => LOGIN_LISTENERS.indexOf(listener) != -1 ?
+	LOGIN_LISTENERS.splice(LOGIN_LISTENERS.indexOf(listener), 1) : null;
 
 exports.doService = async (jsonReq, servObject) => {
 	if (!validateRequest(jsonReq)) {LOG.error("Validation failure."); return CONSTANTS.FALSE_RESULT;}
@@ -53,7 +57,12 @@ exports.doService = async (jsonReq, servObject) => {
 		LOG.error(`${result.reason == REASONS.BAD_ID?"Bad id":result.reason == REASONS.BAD_PASSWORD?"Bad password":"Unknown reason for login failure"} for login request for ID: ${jsonReq.id}.`);
 	}
 
-	if (result.tokenflag) {	// tokenflag means geenrate JWT, meaning login succeeded
+	if (result.tokenflag && (!(await _informLoginListeners(result)))) {	// inform login listeners and give them a chance to veto the login
+		tokenflag = false; result.result = false; 
+		if (result.reason == REASONS.OK || (!result.reason)) result.reason = REASONS.UNKNOWN;	// if the listener didn't add a reason for veto, then make the reason unknown
+	}
+
+	if (result.tokenflag) {	// tokenflag means generate JWT, meaning login succeeded
 		LOG.info(`User logged in: ${result.id}${APP_CONSTANTS.CONF.verify_email_on_registeration?`, email verification status is ${result.verified}.`:"."}`); 
 		const remoteIP = utils.getClientIP(servObject.req);	// api end closes the socket so when the queue task runs remote IP is lost.
 		queueExecutor.add(async _=>{	// update login stats don't care much if it fails
@@ -84,5 +93,8 @@ exports.getRole = headers => {
 exports.isAdmin = headers => (exports.getRole(headers))?.toLowerCase() == APP_CONSTANTS.ROLES.ADMIN.toLowerCase();
 
 exports.REASONS = REASONS;
+
+const _informLoginListeners = async result => {
+	for (const listener of LOGIN_LISTENERS) if (!(await listener(result))) return false; return true; }
 
 const validateRequest = jsonReq => (jsonReq && jsonReq.pwph && jsonReq.otp && jsonReq.id);
