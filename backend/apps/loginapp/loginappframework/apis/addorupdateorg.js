@@ -10,7 +10,7 @@ exports.doService = async jsonReq => {
 	if (!validateRequest(jsonReq)) {LOG.error("Validation failure."); return CONSTANTS.FALSE_RESULT;}
 	LOG.debug("Got add or update request for org: " + jsonReq.org);
 
-	if (!userid.shouldAllowDomain(jsonReq.domain)) {	// see if we should allow the domain
+	if (!userid.shouldAllowNewMainDomainForOrg(jsonReq.domain)) {	// see if we should allow the domain
 		LOG.error(`Security error unable to update org: ${jsonReq.org}, request submitted by ID: ${jsonReq.id}. Domain ${jsonReq.domain} not alllowed.`);
 		return {...CONSTANTS.FALSE_RESULT, reason: register.REASONS.DOMAIN_ERROR};
 	}

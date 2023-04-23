@@ -264,3 +264,39 @@
 {"ts":"2023:04:22:16:42:37","level":"error","message":"[192.168.1.15] Error in initializing embeded app demoapp, error is Error: Not allowed: Security Exception."}
 {"ts":"2023:04:22:16:42:47","level":"error","message":"[192.168.1.15] Error in initializing embeded app demoapp, error is Error: Not allowed: Security Exception."}
 {"ts":"2023:04:22:16:46:30","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:23:15:13:31","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:15:13:59","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:23:15:14:53","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:15:39:04","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:16:38:24","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:16:43:25","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:16:44:22","level":"error","message":"[192.168.1.15] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:23:16:44:52","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:23:16:45:06","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:16:45:56","level":"error","message":"[192.168.1.15] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:23:16:47:58","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:23:16:48:16","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:16:48:49","level":"error","message":"[192.168.1.15] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:23:16:49:22","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:23:16:55:18","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:16:56:40","level":"error","message":"[192.168.1.15] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:23:16:58:11","level":"error","message":"[192.168.1.15] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:23:17:01:30","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:23:17:01:45","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:17:06:59","level":"error","message":"[192.168.1.15] Error in fetching https://192.168.1.15:9090/apps/loginapp/addorupdateorg for request {\"id\":\"thecompany@tekmonks.com\",\"org\":\"Tekmonks Corp.\",\"new_org\":\"Tekmonks Corp.\",\"primary_contact_name\":\"Tekmonks Corp\",\"primary_contact_email\":\"thecompany@tekmonks.com\",\"address\":\"1234 Bay St.\",\"domain\":\"tekmonks.com\",\"alternate_names\":[\"Tekmonks\"],\"alternate_domains\":[\"tekmonks.co.uk\"]} of type POST due to 500: "}
+{"ts":"2023:04:23:17:07:09","level":"error","message":"[192.168.1.15] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:23:17:16:01","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:23:17:16:19","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:17:19:28","level":"error","message":"[192.168.1.15] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:23:17:27:35","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:23:17:27:51","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:17:34:27","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:23:17:35:27","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:17:36:33","level":"error","message":"[192.168.1.15] Error in fetching https://192.168.1.15:9090/apps/loginapp/addorupdateorg for request {\"id\":\"thecompany@tekmonks.com\",\"org\":\"Tekmonks Corp.\",\"new_org\":\"Tekmonks Corp.\",\"primary_contact_name\":\"Tekmonks Corp\",\"primary_contact_email\":\"thecompany@tekmonks.com\",\"address\":\"1234 Bay St.\",\"domain\":\"tekmonks.com\",\"alternate_names\":[\"Tekmonks\"],\"alternate_domains\":[]} of type POST due to 500: "}
+{"ts":"2023:04:23:17:36:33","level":"error","message":"[192.168.1.15] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:23:17:37:48","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:04:23:17:38:09","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:17:38:34","level":"error","message":"[192.168.1.15] Error in fetching https://192.168.1.15:9090/apps/loginapp/addorupdateorg for request {\"id\":\"thecompany@tekmonks.com\",\"org\":\"Tekmonks Corp.\",\"new_org\":\"Tekmonks Corp.\",\"primary_contact_name\":\"Tekmonks Corp\",\"primary_contact_email\":\"thecompany@tekmonks.com\",\"address\":\"1234 Bay St.\",\"domain\":\"tekmonks.com\",\"alternate_names\":[\"Tekmonks\"],\"alternate_domains\":[]} of type POST due to 500: "}
+{"ts":"2023:04:23:17:38:34","level":"error","message":"[192.168.1.15] Error updating, internal error. Please retry later or contact support for help."}
+{"ts":"2023:04:23:17:39:57","level":"info","message":"[192.168.1.15] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:04:23:17:40:53","level":"info","message":"[192.168.1.15] Logout of user ID: thecompany@tekmonks.com."}
