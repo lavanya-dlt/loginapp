@@ -116,5 +116,6 @@ export const i18n = {
 "OrgEditErrorInternal": "Error updating, internal error. Please retry later or contact support for help.",
 "OrgEditErrorDomain": "Error updating the new domain is not allowed. Please contact support for help.",
 "OrgFetchError": "Unable to get organization details. Please retry later or contact support for help.",
-"ChangingDomainsOrSuborgsWillMigrateUsers": "WARNING: You have edited the list of subdomains and/or suborganizations. This is a destructive operation that will also migrate users associated with the deleted domains or suborganizations to the main organization name and domain. Press Cancel to avoid this. Press OK again to proceed."
+"ChangingSuborgsWillMigrateUsers": "WARNING: You have edited the list of suborganizations. This is a destructive operation that will also migrate users associated with the deleted suborganizations to the main organization. Press Cancel to avoid this. Press OK again to proceed.",
+"SomeUndeletableDomainsFound": "Undeletable domains found - {{domains}}. Please restore them as they have registered users or cancel."
 }

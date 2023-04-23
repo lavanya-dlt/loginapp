@@ -11,16 +11,19 @@ exports.doService = async jsonReq => {
 
 	const result = await userid.getOrg(jsonReq.org), alternate_domains = [], alternate_names = [],
 		registeredDomainsForOrg = (result?.result)?(await userid.getDomainsForOrg(result.name))||[] : [],
-		suborgsForOrg = (result?.result)?(await userid.getSubOrgs(result.name))||[] : [];
-	if (result?.result) for (const domain of registeredDomainsForOrg) 
+		suborgsForOrg = (result?.result)?(await userid.getSubOrgs(result.name))||[] : [], deletable_domains = [];
+	if (result?.result) for (const domain of registeredDomainsForOrg) {
 		if (domain.toLowerCase() != result.domain.toLowerCase()) alternate_domains.push(domain);
+		const domainUsers = await userid.getUsersForDomain(domain);
+		if (!domainUsers.result) deletable_domains.push(domain);
+	}
 	if (result?.result) for (const suborg of suborgsForOrg) 
 		if (suborg.toLowerCase() != result.name.toLowerCase()) alternate_names.push(suborg);
 
 	if (result.result) LOG.info(`Sending data for org ${jsonReq.org} as ${JSON.stringify(result)}.`); 
 	else LOG.error(`Unable to find org with name ${jsonReq.org}, DB error.`);
 
-	return {...result, ...CONSTANTS.TRUE_RESULT, alternate_domains, alternate_names};
+	return {...result, ...CONSTANTS.TRUE_RESULT, alternate_domains, alternate_names, deletable_domains};
 }
 
 const validateRequest = jsonReq => (jsonReq && jsonReq.id && jsonReq.org);

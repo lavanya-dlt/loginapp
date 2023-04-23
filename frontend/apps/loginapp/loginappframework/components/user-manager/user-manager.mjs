@@ -124,7 +124,7 @@ async function editOrg(org, element) {
 	const orgDetails = await apiman.rest(`${backendURL}/${API_GETORG}`, "GET", {
 		id: session.get(conf.userid_session_variable).toString(), org}, true);
 	if ((!orgDetails) || (!orgDetails.result)) {const err = await i18n.get("OrgFetchError"); LOG.error(err); _showError(err); return;}
-	
+
 	let dontCheckAutoUserMigrations = false;
 	monkshu_env.components['dialog-box'].showDialog(`${COMPONENT_PATH}/dialogs/editorg.html`, true, true, 
 		{orgname: orgDetails.name, orgaddress: orgDetails.address, orgcontactname: orgDetails.primary_contact_name, 
@@ -140,12 +140,23 @@ async function editOrg(org, element) {
 			ret.orgnames.push(orgDetails.name);	// if orgname is changed push old name into altername_names
 		if (ret.orgdomain != orgDetails.domain) if (!_array_includes_nocase(ret.orgdomains, orgDetails.domain)) 
 			ret.orgdomains.push(orgDetails.domain);	// if orgdomain is changed push old domain into altername_domains
-		if ((!dontCheckAutoUserMigrations) && (_arrayBNotSubsetOfA(ret.orgnames, orgDetails.alternate_names) || 
-			_arrayBNotSubsetOfA(ret.orgdomains, orgDetails.alternate_domains))) {
-				monkshu_env.components['dialog-box'].error("dialog", await i18n.get("ChangingDomainsOrSuborgsWillMigrateUsers"));
-				dontCheckAutoUserMigrations = true;
-				return;	// inform admin if he changes org domains or alternate names we will drop associated users
+
+		let undeletableDomainFoundDeleted = [];	// make sure we are not dropping undeletable domains
+		if (_arrayBNotSubsetOfA(ret.orgdomains, orgDetails.alternate_domains))	// some domains have been droppped
+			for (const oldDomain of orgDetails.alternate_domains) if ( (!ret.orgdomains.includes(oldDomain))
+				&& (!orgDetails.deletable_domains.includes(oldDomain)) ) undeletableDomainFoundDeleted.push(oldDomain);
+		if (undeletableDomainFoundDeleted.length) {
+			monkshu_env.components['dialog-box'].error("dialog", mustache_instance.render(
+				await i18n.get("SomeUndeletableDomainsFound"), {domains: undeletableDomainFoundDeleted.join(", ")}));
+			return;
 		}
+
+		if ((!dontCheckAutoUserMigrations) && _arrayBNotSubsetOfA(ret.orgnames, orgDetails.alternate_names)) {
+			monkshu_env.components['dialog-box'].error("dialog", await i18n.get("ChangingSuborgsWillMigrateUsers"));
+			dontCheckAutoUserMigrations = true;
+			return;	// inform admin if he changes org alternate names we will migrate associated users
+		}
+
 		const req = {id: session.get(conf.userid_session_variable).toString(), 
 			org: orgDetails.name, new_org: ret.orgname, primary_contact_name: ret.orgcontactname, 
 			primary_contact_email: ret.orgcontactemail, address: ret.orgaddress||"", 

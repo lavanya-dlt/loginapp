@@ -39,7 +39,7 @@ function addItem(element) {
 	const host = editable_list.getHostElement(element), value = element.value, data = editable_list.getData(host.id);
 	if (value.trim() == "") return;	// empty
 	data.items.push({id: Date.now(), label: value, ondblclick: host.getAttribute("ondblclickHandler")||undefined});
-	editable_list.bindData(data, host.id)
+	editable_list.bindData(data, host.id);
 }
 
 function removeItem(element, itemID) {
