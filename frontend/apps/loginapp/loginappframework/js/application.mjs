@@ -27,6 +27,9 @@ const init = async hostname => {
 	const API_GETREMOTELOG = APP_CONSTANTS.API_PATH+"/getremotelog", API_REMOTELOG = APP_CONSTANTS.API_PATH+"/log";
 	const remoteLogResponse = (await apiman.rest(API_GETREMOTELOG, "GET")), remoteLogFlag = remoteLogResponse?remoteLogResponse.remote_log:false;
 	LOG.setRemote(remoteLogFlag, API_REMOTELOG);
+
+	const embeddedAppName = APP_CONSTANTS.EMBEDDED_APP_NAME?APP_CONSTANTS.EMBEDDED_APP_NAME.trim():undefined;
+    if (embeddedAppName) i18n.addPath(`${APP_CONSTANTS.APP_PATH}/${embeddedAppName}`);
 }
 
 const main = async (desiredURL, desiredData) => {
