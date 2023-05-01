@@ -7,13 +7,16 @@ const BACKEND = "https://{{{hostname}}}:9090";
 const APP_NAME = "loginapp";
 const EMBEDDED_APP_NAME = "demoapp";
 const APP_PATH = `${FRONTEND}/apps/${APP_NAME}`;
+const EMBEDDED_APP_PATH = `${APP_PATH}/${EMBEDDED_APP_NAME}`;
 const LOGINAPP_PATH = `${APP_PATH}/loginappframework`;
 const CONF_PATH = `${LOGINAPP_PATH}/conf`;
 const COMPONENTS_PATH = `${LOGINAPP_PATH}/components`;
 const API_PATH = `${BACKEND}/apps/${APP_NAME}`;
 
 export const APP_CONSTANTS = {
-    FRONTEND, BACKEND, APP_PATH, APP_NAME, COMPONENTS_PATH, API_PATH, CONF_PATH, LOGINAPP_PATH, EMBEDDED_APP_NAME,
+    FRONTEND, BACKEND, APP_PATH, APP_NAME, COMPONENTS_PATH, API_PATH, CONF_PATH, LOGINAPP_PATH, 
+    EMBEDDED_APP_NAME, EMBEDDED_APP_PATH,
+
     MAIN_HTML: LOGINAPP_PATH+"/main.html",
     LOGIN_HTML: LOGINAPP_PATH+"/login.html",
     INDEX_HTML: LOGINAPP_PATH+"/index.html",
@@ -25,6 +28,8 @@ export const APP_CONSTANTS = {
     DOWNLOAD_HTML: LOGINAPP_PATH+"/download.html",
 
     DIALOGS_PATH: LOGINAPP_PATH+"/dialogs",
+
+    LOGINFRAMEWORK_LIB_PATH: LOGINAPP_PATH+"/js",
 
     SESSION_NOTE_ID: "com_monkshu_ts",
 
@@ -48,6 +53,7 @@ export const APP_CONSTANTS = {
     USERORG: "userorg",
     USERORGDOMAIN: "userorgdomain",
     USER_NEEDS_VERIFICATION: "userneedsverification",
+    LOGIN_RESPONSE: "loginresponse",
 
     USER_ROLE: "user",
     GUEST_ROLE: "guest",
@@ -58,14 +64,14 @@ export const APP_CONSTANTS = {
             LOGINAPP_PATH+"/main.html", LOGINAPP_PATH+"/reset.html", LOGINAPP_PATH+"/initiallogin.html", 
             LOGINAPP_PATH+"/register.html", LOGINAPP_PATH+"/notapproved.html", 
             LOGINAPP_PATH+"/loginroom.html", LOGINAPP_PATH+"/login.html", $$.MONKSHU_CONSTANTS.ERROR_HTML,
-            `${APP_PATH}/${EMBEDDED_APP_NAME}/*.html`],
+            `${EMBEDDED_APP_PATH}/*.html`],
 
         admin:[window.location.origin, LOGINAPP_PATH+"/index.html", LOGINAPP_PATH+"/download.html", 
             LOGINAPP_PATH+"/error.html", LOGINAPP_PATH+"/verify.html", LOGINAPP_PATH+"/main.html", 
             LOGINAPP_PATH+"/reset.html", LOGINAPP_PATH+"/initiallogin.html", LOGINAPP_PATH+"/register.html", 
             LOGINAPP_PATH+"/notapproved.html", LOGINAPP_PATH+"/loginroom.html", LOGINAPP_PATH+"/login.html", 
             LOGINAPP_PATH+"/manage.html", $$.MONKSHU_CONSTANTS.ERROR_HTML, 
-            `${APP_PATH}/${EMBEDDED_APP_NAME}/*.html`],
+            `${EMBEDDED_APP_PATH}/*.html`],
 
         guest:[window.location.origin, LOGINAPP_PATH+"/index.html", LOGINAPP_PATH+"/download.html", 
             LOGINAPP_PATH+"/error.html", LOGINAPP_PATH+"/verify.html", LOGINAPP_PATH+"/reset.html", 

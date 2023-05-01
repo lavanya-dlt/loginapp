@@ -3,6 +3,7 @@
  * License: See enclosed license.txt file.
  */
 
+import {i18n} from "/framework/js/i18n.mjs";
 import {util} from "/framework/js/util.mjs";
 import {router} from "/framework/js/router.mjs";
 import {session} from "/framework/js/session.mjs";
@@ -49,12 +50,24 @@ const interceptPageLoadData = _ => router.addOnLoadPageData("*", async (data, _u
 });
 
 async function _readConfig() {
-	const conf = await(await fetch(`${APP_CONSTANTS.CONF_PATH}/app.json`)).json();
+	const conf = await $$.requireJSON(`${APP_CONSTANTS.CONF_PATH}/app.json`);
 	for (const key of Object.keys(conf)) APP_CONSTANTS[key] = conf[key];
+
+	// merge embedded app's app.json overiding the loginapp's app.json if needed.
+	let confEmbedded = {}; if (APP_CONSTANTS.EMBEDDED_APP_NAME) try{ confEmbedded = await $$.requireJSON(
+		`${APP_CONSTANTS.APP_PATH}/${APP_CONSTANTS.EMBEDDED_APP_NAME}/conf/app.json`) } catch(err) {
+			LOG.warn(`Missing or unreadable app.json for the embedded app. The error is ${err}.`);
+		};
+	for (const [key, value] of Object.entries(confEmbedded)) 
+		if (APP_CONSTANTS[key] && Array.isArray(APP_CONSTANTS[key])) APP_CONSTANTS[key] = 
+			[...APP_CONSTANTS[key], ...(Array.isArray(value)?value:[value])]; 	// merge arrays
+		else if ((typeof APP_CONSTANTS[key] === "object") && (typeof value === "object")) 
+			APP_CONSTANTS[key]  = {...APP_CONSTANTS[key], ...value};
+		else APP_CONSTANTS[key] = value;
 }
 
 const _registerComponents = async _ => { for (const component of APP_CONSTANTS.COMPONENTS) 
-	await import(`${APP_CONSTANTS.COMPONENTS_PATH}/${component}/${component}.mjs`); }
+	await import(`${APP_CONSTANTS.APP_PATH}/${component}/${component.substring(component.lastIndexOf("/")+1)}.mjs`); }
 
 async function _addPageLoadInterceptors() {
 	const interceptors = await(await fetch(`${APP_CONSTANTS.CONF_PATH}/pageLoadInterceptors.json`)).json();

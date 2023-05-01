@@ -9,7 +9,8 @@ import {session} from "/framework/js/session.mjs";
 import {securityguard} from "/framework/js/securityguard.mjs";
 import {apimanager as apiman} from "/framework/js/apimanager.mjs";
 
-const LOGOUT_LISTENERS = "__loginmanager_logout_listeners", TIMEOUT_CURRENT = "__loginmanager_timeout_current";
+const LOGOUT_LISTENERS = "__loginmanager_logout_listeners", 
+    TIMEOUT_CURRENT = "__loginmanager_timeout_current";
 
 async function signin(id, pass, otp) {
     const pwph = `${id} ${pass}`;
@@ -21,9 +22,10 @@ async function signin(id, pass, otp) {
         session.set(APP_CONSTANTS.USERID, resp.id); 
         session.set(APP_CONSTANTS.USERNAME, resp.name);
         session.set(APP_CONSTANTS.USERORG, resp.org);
-        session.set("__org_monkshu_cuser_pass", pass);
         session.set(APP_CONSTANTS.USER_NEEDS_VERIFICATION, resp.verified);
         session.set(APP_CONSTANTS.USERORGDOMAIN, resp.domain);
+        session.set(APP_CONSTANTS.LOGIN_RESPONSE, resp);
+        session.set("__org_monkshu_cuser_pass", pass);
         securityguard.setCurrentRole(resp.role);
         LOG.info(`Login succeeded for ${id}.`);
         return resp.verified?loginmanager.ID_OK:loginmanager.ID_OK_NOT_YET_VERIFIED;
@@ -62,6 +64,7 @@ async function registerOrUpdate(old_id, name, id, pass, org, totpSecret, totpCod
         session.set(APP_CONSTANTS.USERORG, org);
         session.set(APP_CONSTANTS.USERORGDOMAIN, resp.domain);
         session.set(APP_CONSTANTS.USER_NEEDS_VERIFICATION, resp.needs_verification);
+        session.set(APP_CONSTANTS.LOGIN_RESPONSE, resp);
         session.set("__org_monkshu_cuser_pass", pass);
         securityguard.setCurrentRole(resp.role);
         LOG.info(`${isUpdate?"Update":"Registration"} succeeded ${id}.`);
@@ -140,4 +143,4 @@ export const loginmanager = {signin, reset, registerOrUpdate, logout, changepass
     addLogoutListener, getProfileData, checkResetSecurity, getSessionUser, interceptPageLoad, 
     ID_OK: 1, ID_FAILED_EXISTS: -4, ID_FAILED_OTP: -5, ID_OK_NOT_YET_APPROVED: -1, 
     ID_INTERNAL_ERROR: -2, ID_DB_ERROR: -3, ID_OK_NOT_YET_VERIFIED: 2, ID_FAILED_PASSWORD: -6, ID_FAILED_MISSING: -7,
-    ID_SECURITY_ERROR: -8, ID_DOMAIN_ERROR: -9}
+    ID_SECURITY_ERROR: -8, ID_DOMAIN_ERROR: -9};

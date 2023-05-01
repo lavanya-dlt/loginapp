@@ -11,9 +11,9 @@ const userid = require(`${APP_CONSTANTS.LIB_DIR}/userid.js`);
 const queueExecutor = require(`${CONSTANTS.LIBDIR}/queueExecutor.js`);
 const emailTemplate = require(`${APP_CONSTANTS.CONF_DIR}/email.json`);
 
-const DEFAULT_QUEUE_DELAY = 500, newUserListeners = [], REASONS = {ID_EXISTS: "exists", OTP_ERROR: "otp", 
-	INTERNAL_ERROR: "internal", SECURITY_ERROR: "securityerror", DOMAIN_ERROR: "domainerror", 
-	ID_DOESNT_EXIST: "iddoesntexist"};
+const DEFAULT_QUEUE_DELAY = 500, NEW_USER_LISTENERS_MEMORY_KEY = "__org_monkshu_loginapp_registeration_listeners", 
+	REASONS = {ID_EXISTS: "exists", OTP_ERROR: "otp", INTERNAL_ERROR: "internal", 
+		SECURITY_ERROR: "securityerror", DOMAIN_ERROR: "domainerror", ID_DOESNT_EXIST: "iddoesntexist"};
 
 exports.doService = async (jsonReq, servObject) => {
 	if (!validateRequest(jsonReq)) {LOG.error("Validation failure."); return CONSTANTS.FALSE_RESULT;}
@@ -52,7 +52,8 @@ exports.addUser = async (jsonReq, servObject, byAdmin=false) => {
 	if ((!result) || ((!result.result) && result.reason != userid.ID_EXISTS)) LOG.error(`Unable to register: ${jsonReq.name}, ID: ${jsonReq.id} DB error.`);
 	else if (!result.result) LOG.error(`Unable to register: ${jsonReq.name}, ID: ${jsonReq.id} exists already.`);
 
-	if (result.result) for (const newUserListener of newUserListeners) if (!(await newUserListener(jsonReq.id, jsonReq.org))) {	// inform listeners and watch for a veto
+	result.tokenflag = result.result && result.approved == 1 ? true:false;
+	if (result.result) if (!_informNewUserListners(result)) {	// inform listeners and watch for a veto
 		LOG.error(`Listener veto for id ${id}, for org ${org}. Dropping the ID.`);
 		try {userid.deleteUser(id)} catch(_) {};	// try to drop the account
 		return {...CONSTANTS.FALSE_RESULT, reason: REASONS.INTERNAL_ERROR};
@@ -75,7 +76,7 @@ exports.addUser = async (jsonReq, servObject, byAdmin=false) => {
 			true, DEFAULT_QUEUE_DELAY);
 	}
 	
-	return {...result, needs_verification: verifyEmail, tokenflag: (result.result && (result.approved == 1))?true:false, 
+	return {...result, needs_verification: verifyEmail, 
 		reason:result.result?undefined:(result.reason==userid.ID_EXISTS?REASONS.ID_EXISTS:REASONS.INTERNAL_ERROR),
 		approved: result.approved==1?true:false};
 }
@@ -116,7 +117,11 @@ exports.checkOrgAndDomainMatch = async function (jsonReq, idProperty, mustHaveDo
 	if (domainsForOrg.includes(rootDomain)) return true;	// matches
 }
 
-exports.addNewUserListener = listener => newUserListeners.push(listener);
+exports.addNewUserListener = (modulePath, functionName) => {
+	const newuserListeners = CLUSTER_MEMORY.get(NEW_USER_LISTENERS_MEMORY_KEY, []);
+	newuserListeners.push({modulePath, functionName});
+	CLUSTER_MEMORY.set(NEW_USER_LISTENERS_MEMORY_KEY, newuserListeners);
+}
 
 exports.REASONS = REASONS;
 
@@ -151,6 +156,15 @@ async function _emailAdminNewRegistration(id, name, org, lang) {
 const _arrayToLowercase = array => {
 	if (!array) return array;
 	const retArray = []; for (const element of array) retArray.push(element.toLowerCase()); return retArray;
+}
+
+
+const _informNewUserListners = async result => {
+	const newuserListeners = CLUSTER_MEMORY.get(LOGIN_LISTENERS_MEMORY_KEY, []);
+	for (const listener of newuserListeners) {
+		const listenerFunction = require(listener.modulePath)[listener.functionName];
+		if (!(await listenerFunction(result))) return false; return true; 
+	}
 }
 
 const validateRequest = jsonReq => (jsonReq && jsonReq.pwph && jsonReq.id && jsonReq.name && jsonReq.org && 

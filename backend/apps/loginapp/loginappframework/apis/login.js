@@ -9,9 +9,9 @@ const register = require(`${APP_CONSTANTS.API_DIR}/register.js`);
 const jwttokenmanager = APIREGISTRY.getExtension("JWTTokenManager");
 const queueExecutor = require(`${CONSTANTS.LIBDIR}/queueExecutor.js`);
 
-const DEFAULT_QUEUE_DELAY = 500, LOGIN_LISTENERS = [], LOGINS_MEMORY_KEY = "__org_monkshu_loginapp_logins",
-	REASONS = { BAD_PASSWORD: "badpw", BAD_ID: "badid", BAD_OTP: "badotp", BAD_APPROVAL: "notapproved", 
-		OK: "allok", UNKNOWN: "unknown", DOMAIN_ERROR: "domainerror" };
+const DEFAULT_QUEUE_DELAY = 500, LOGIN_LISTENERS_MEMORY_KEY = "__org_monkshu_loginapp_login_listeners", 
+	LOGINS_MEMORY_KEY = "__org_monkshu_loginapp_logins", REASONS = { BAD_PASSWORD: "badpw", BAD_ID: "badid", 
+		BAD_OTP: "badotp", BAD_APPROVAL: "notapproved", OK: "allok", UNKNOWN: "unknown", DOMAIN_ERROR: "domainerror" };
 
 exports.init = _ => {
 	jwttokenmanager.addListener((event, object) => {
@@ -30,9 +30,11 @@ exports.init = _ => {
 	});
 }
 
-exports.addLoginListener = listener => LOGIN_LISTENERS.push(listener);
-exports.removeLoginListener = listener => LOGIN_LISTENERS.indexOf(listener) != -1 ?
-	LOGIN_LISTENERS.splice(LOGIN_LISTENERS.indexOf(listener), 1) : null;
+exports.addLoginListener = (modulePath, functionName) => {
+	const loginlisteners = CLUSTER_MEMORY.get(LOGIN_LISTENERS_MEMORY_KEY, []);
+	loginlisteners.push({modulePath, functionName});
+	CLUSTER_MEMORY.set(LOGIN_LISTENERS_MEMORY_KEY, loginlisteners);
+}
 
 exports.doService = async (jsonReq, servObject) => {
 	if (!validateRequest(jsonReq)) {LOG.error("Validation failure."); return CONSTANTS.FALSE_RESULT;}
@@ -95,6 +97,11 @@ exports.isAdmin = headers => (exports.getRole(headers))?.toLowerCase() == APP_CO
 exports.REASONS = REASONS;
 
 const _informLoginListeners = async result => {
-	for (const listener of LOGIN_LISTENERS) if (!(await listener(result))) return false; return true; }
+	const loginlisteners = CLUSTER_MEMORY.get(LOGIN_LISTENERS_MEMORY_KEY, []);
+	for (const listener of loginlisteners) {
+		const listenerFunction = require(listener.modulePath)[listener.functionName];
+		if (!(await listenerFunction(result))) return false; return true; 
+	}
+}
 
 const validateRequest = jsonReq => (jsonReq && jsonReq.pwph && jsonReq.otp && jsonReq.id);
