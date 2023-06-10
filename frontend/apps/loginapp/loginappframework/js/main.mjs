@@ -88,6 +88,11 @@ async function gohome() {
     router.navigate(APP_CONSTANTS.MAIN_HTML);
 }
 
+async function showNotifications(action) {
+    const notifications = await eval(action);
+    alert(notifications);
+}
+
 const addGoHomeListener = listener => gohomeListeners.push(listener);
 
 async function _getTOTPQRCode(key) {
@@ -100,4 +105,4 @@ async function _getTOTPQRCode(key) {
 const showMessage = message => dialog().showMessage(message, "dialog");
 
 export const main = {toggleMenu, changePassword, showOTPQRCode, showLoginMessages, changeProfile, logoutClicked, 
-    interceptPageData, gohome, addGoHomeListener, showMessage}
+    interceptPageData, gohome, addGoHomeListener, showMessage, showNotifications}
