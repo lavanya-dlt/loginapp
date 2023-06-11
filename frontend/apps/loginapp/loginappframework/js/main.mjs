@@ -88,9 +88,11 @@ async function gohome() {
     router.navigate(APP_CONSTANTS.MAIN_HTML);
 }
 
-async function showNotifications(action) {
+async function showNotifications(action, event, bottom_menu) {
     const notifications = await eval(action);
-    alert(notifications);
+    const context_menu = window.monkshu_env.components["context-menu"];
+    context_menu.showMenu("contextmenumain", notifications, event.clientX, event.clientY, bottom_menu?5:10, bottom_menu?5:10, 
+        null, true, bottom_menu, true);
 }
 
 const addGoHomeListener = listener => gohomeListeners.push(listener);
