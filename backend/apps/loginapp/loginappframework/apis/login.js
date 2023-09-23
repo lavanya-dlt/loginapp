@@ -87,12 +87,30 @@ exports.getOrg = headers => {
 	return logins[headers["authorization"].toLowerCase()]?logins[headers["authorization"].toLowerCase()].org:null;
 }
 
+exports.getKey = headers => APIREGISTRY.getExtension("apikeychecker").getIncomingAPIKey(headers);
+
+exports.getOrgKeys = async headersOrOrg => {
+	const orgIn = typeof headersOrOrg == "string" ? headersOrOrg : exports.getOrg(headersOrOrg);
+	return await userid.getKeysForOrg(orgIn);
+}
+
+exports.setOrgKeys = async (headersOrOrg, keys) => {
+	const orgIn = typeof headersOrOrg == "string" ? headersOrOrg : exports.getOrg(headersOrOrg);
+	return await userid.setKeysForOrg(keys, orgIn);
+}
+
 exports.getRole = headers => {
-	if (!headers["authorization"]) return null; const logins = CLUSTER_MEMORY.get(LOGINS_MEMORY_KEY) || {};
+	if (!headers["authorization"]) return null;
+	const logins = CLUSTER_MEMORY.get(LOGINS_MEMORY_KEY) || {};
 	return logins[headers["authorization"].toLowerCase()]?logins[headers["authorization"].toLowerCase()].role:null;
 }
 
 exports.isAdmin = headers => (exports.getRole(headers))?.toLowerCase() == APP_CONSTANTS.ROLES.ADMIN.toLowerCase();
+
+exports.isIDAdminForOrg = async (id, org) => {
+	const adminsForOrg = await userid.getAdminsForOrgOrSuborg(org); 
+	if (adminsForOrg && adminsForOrg.includes(id)) return true; else return false;
+}
 
 exports.REASONS = REASONS;
 

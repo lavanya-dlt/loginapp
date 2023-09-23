@@ -165,6 +165,11 @@ exports.getAdminsFor = async id => {
 	if (admins && admins.length) return admins; else return null;
 }
 
+exports.getAdminsForOrgOrSuborg = async org => {
+	const admins = await db.getQuery("SELECT * FROM users WHERE role = 'admin' AND (org = ? OR suborg = ?) COLLATE NOCASE", [org]);
+	if (admins && admins.length) return admins; else return null;
+}
+
 exports.shouldAllowDomain = async domain => {
 	const orgMainDomain = _flattenArray(	// retrieve the main domain for this domain's org, if in the DB
 		await db.getQuery("SELECT domain FROM orgs WHERE name IN (SELECT org FROM domains WHERE domain=? COLLATE NOCASE LIMIT 1);",[domain]),
@@ -189,7 +194,7 @@ exports.shouldAllowNewMainDomainForOrg = async domain => {
 }
 
 exports.addOrUpdateOrg = async (org, neworg, primary_contact_name="", primary_contact_email, address="", domain, 
-		alternate_names=[], alternate_domains=[]) => {
+		alternate_names=[], alternate_domains=[], keys=[]) => {
 			
 	if (!neworg) neworg = org;
 	const oldOrgEntry = await exports.getOrg(org);
@@ -202,6 +207,7 @@ exports.addOrUpdateOrg = async (org, neworg, primary_contact_name="", primary_co
 		transactions.push({cmd: "DELETE FROM orgs WHERE name = ?", params:[org]});	// delete old org entry
 		transactions.push({cmd: "UPDATE users SET org = ? WHERE org = ?", params: [neworg, org]});
 		transactions.push({cmd: "UPDATE credit_cards SET org = ? WHERE org = ?", params: [neworg, org]});
+		transactions.push({cmd: "UPDATE keys SET org = ? WHERE org = ?", params: [neworg, org]});
 	}
 	if (oldOrgEntry.domain != domain) transactions.push(	// update domains for users to new main domain
 		{cmd: "UPDATE users SET domain = ? WHERE domain = ?", params: [domain, oldOrgEntry.domain]});
@@ -211,6 +217,7 @@ exports.addOrUpdateOrg = async (org, neworg, primary_contact_name="", primary_co
 		cmd: "INSERT INTO domains (domain, org) VALUES (?,?)", params: [domainThis, neworg]});
 	for (const alternateName of _unique_ignorecase_array([...alternate_names, org])) transactions.push({
 		cmd: "INSERT INTO suborgs (name, org) VALUES (?,?)", params: [alternateName, neworg]});
+	for (const key of keys) transactions.push({cmd: "INSERT INTO keys (key, org) VALUES (?,?)", params: [key, neworg]});
 
 	const updateResult = await db.runTransaction(transactions);
 
@@ -245,7 +252,7 @@ exports.getOrg = async org => {
 
 exports.deleteOrg = async org => {
 	const usersForOrg = await exports.getUsersForRootOrg(org), suborgsForOrg = await exports.getSubOrgs(org),
-		domainsForOrg = await exports.getDomainsForOrg(org);
+		domainsForOrg = await exports.getDomainsForOrg(org), keys = await exports.getKeysForOrg(org);
 	if ((!suborgsForOrg) || (!domainsForOrg)) return {result: false, org};
 
 	const deleteResult = await db.runCmd("DELETE FROM orgs WHERE name = ?", [org]);
@@ -257,6 +264,8 @@ exports.deleteOrg = async org => {
 			LOG.warn(`Deletion of org ${org} orphaned suborg ${suborg} as deletion of this suborg failed. Database is inconsistent.`);
 		for (const domain of domainsForOrg) if (!(await exports.deleteDomain(domain)).result) 
 			LOG.warn(`Deletion of org ${org} orphaned domain ${domain} as deletion of this domain failed. Database is inconsistent.`);
+		for (const key of keys) if (!(await exports.deleteKey(key)).result) 
+			LOG.warn(`Deletion of org ${org} orphaned key ${key} as deletion of this key failed. Database is inconsistent.`);
 	}
 
 	return {result: deleteResult, org};
@@ -282,6 +291,29 @@ exports.deleteSuborg = async (suborg, migrateUsersToMainOrg, mainOrg) => {
 	}
 	
 	return {result: suborgDeletionResult, suborg};
+}
+
+exports.addKey = async (key, org) => {
+	return {result: await db.runCmd("INSERT OR IGNORE INTO keys (key, org) VALUES (?,?)", [key, org]), key, org};
+}
+
+exports.deleteKey = async key => {
+	return {result: await db.runCmd("DELETE from keys WHERE key = ?", [key]), key};
+}
+
+exports.getKeysForOrg = async org => {
+	const keys = await db.getQuery("SELECT key FROM keys WHERE org = ? COLLATE NOCASE", [org]);
+	if (keys && keys.length) return _flattenArray(keys, "key"); else return null;
+}
+
+exports.setKeysForOrg = async (keys, org) => {
+	if (!keys) keys = [serverutils.generateUUID(false)];
+	const keysIn = (!Array.isArray(keys)) ? [keys] : [...keys];
+
+	const commandsToUpdate = [{cmd: "DELETE FROM keys WHERE org = ? COLLATE NOCASE", params: [org]}];	// drop all current keys
+	for (const key of keysIn) commandsToUpdate.push({cmd:"INSERT INTO KEYS (key, org) VALUES (?, ?)", params: [key, org]});
+	const updateResult = await db.runTransaction(commandsToUpdate);
+	if (!updateResult) return false; else return keysIn;
 }
 
 exports.addDomain = async (domain, org) => {

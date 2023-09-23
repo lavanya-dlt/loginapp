@@ -22,6 +22,7 @@ async function signin(id, pass, otp) {
         session.set(APP_CONSTANTS.USERID, resp.id); 
         session.set(APP_CONSTANTS.USERNAME, resp.name);
         session.set(APP_CONSTANTS.USERORG, resp.org);
+        session.set(APP_CONSTANTS.CURRENT_USERROLE, resp.role); 
         session.set(APP_CONSTANTS.USER_NEEDS_VERIFICATION, resp.verified);
         session.set(APP_CONSTANTS.USERORGDOMAIN, resp.domain);
         session.set(APP_CONSTANTS.LOGIN_RESPONSE, resp);
@@ -62,6 +63,7 @@ async function registerOrUpdate(old_id, name, id, pass, org, totpSecret, totpCod
         session.set(APP_CONSTANTS.USERID, id); 
         session.set(APP_CONSTANTS.USERNAME, name);
         session.set(APP_CONSTANTS.USERORG, org);
+        session.set(APP_CONSTANTS.CURRENT_USERROLE, resp.role);
         session.set(APP_CONSTANTS.USERORGDOMAIN, resp.domain);
         session.set(APP_CONSTANTS.USER_NEEDS_VERIFICATION, resp.needs_verification);
         session.set(APP_CONSTANTS.LOGIN_RESPONSE, resp);
@@ -134,13 +136,15 @@ function startAutoLogoutTimer() { return;
 
 const interceptPageLoad = _ => router.addOnLoadPage("*", startAutoLogoutTimer); 
 
+const isAdmin = _ => session.get(APP_CONSTANTS.CURRENT_USERROLE).toString() == "admin";
+
 const _stopAutoLogoutTimer = _ => { 
     const currTimeout = session.get(TIMEOUT_CURRENT);
     if (currTimeout) {clearTimeout(currTimeout); session.remove(TIMEOUT_CURRENT);} 
 }
 
 export const loginmanager = {signin, reset, registerOrUpdate, logout, changepassword, startAutoLogoutTimer, 
-    addLogoutListener, getProfileData, checkResetSecurity, getSessionUser, interceptPageLoad, 
+    addLogoutListener, getProfileData, checkResetSecurity, getSessionUser, interceptPageLoad, isAdmin,
     ID_OK: 1, ID_FAILED_EXISTS: -4, ID_FAILED_OTP: -5, ID_OK_NOT_YET_APPROVED: -1, 
     ID_INTERNAL_ERROR: -2, ID_DB_ERROR: -3, ID_OK_NOT_YET_VERIFIED: 2, ID_FAILED_PASSWORD: -6, ID_FAILED_MISSING: -7,
     ID_SECURITY_ERROR: -8, ID_DOMAIN_ERROR: -9};

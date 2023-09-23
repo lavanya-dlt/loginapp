@@ -5,7 +5,7 @@
 const FRONTEND = "https://{{{hostname}}}";
 const BACKEND = "https://{{{hostname}}}:9090";
 const APP_NAME = "loginapp";
-const EMBEDDED_APP_NAME = "demoapp";
+const EMBEDDED_APP_NAME = "loginappframework";	// embed yourself
 const APP_PATH = `${FRONTEND}/apps/${APP_NAME}`;
 const EMBEDDED_APP_PATH = `${APP_PATH}/${EMBEDDED_APP_NAME}`;
 const LOGINAPP_PATH = `${APP_PATH}/loginappframework`;
@@ -51,6 +51,7 @@ export const APP_CONSTANTS = {
     TIMEOUT: 600000,
     USERNAME: "username",
     USERORG: "userorg",
+    CURRENT_USERROLE: "currentuserrole",
     USERORGDOMAIN: "userorgdomain",
     USER_NEEDS_VERIFICATION: "userneedsverification",
     LOGIN_RESPONSE: "loginresponse",
