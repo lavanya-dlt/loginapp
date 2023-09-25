@@ -99,7 +99,7 @@ div#maincontent {
 	flex-direction: row;
 }
 
-.lgbox {
+.registerbox {
 	width: 25em;
 	background-color: #ffffff;
 	border-radius: 20px;
@@ -110,7 +110,7 @@ div#maincontent {
 	margin-bottom: 1em;
 }
 
-div.lgbox > span {
+div.registerbox > span {
 	font-weight: 600;
 	font-size: small;
 }
@@ -160,7 +160,7 @@ div.lgbox > span {
 	div#maincontent {flex-direction: column;}
 	div#header {flex-direction: column-reverse; height: 6em;}
 	span#signin {text-align: center;}
-	.lgbox {padding: 1em; box-shadow: none;}
+	.registerbox {padding: 1em; box-shadow: none;}
 {{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_END}}}
 
 <!doctype html>
@@ -184,9 +184,8 @@ div.lgbox > span {
 	<img class="logo" src="./img/logo.svg" onclick="window.open(APP_CONSTANTS.APP_ABOUT_URL, '_blank')"></img>
 </span>
 <span id="signin">
-	<span><a href="{{#_org_monkshu_makeLink}}./loginroom.html{{/_org_monkshu_makeLink}}">{{i18n.RoomLoginMsg}}</a></span>
-	<span><a href="{{#_org_monkshu_makeLink}}./register.html{{/_org_monkshu_makeLink}}">{{i18n.Register}}</a></span>
-	<span><a href="{{#_org_monkshu_makeLink}}./login.html{{/_org_monkshu_makeLink}}">{{i18n.SignIn}}</a></span>
+	<span><a href="{{#_org_monkshu_makeLink}}./register.html{{#url.appid}}?appid={{{.}}}{{/url.appid}}{{/_org_monkshu_makeLink}}">{{i18n.Register}}</a></span>
+	<span><a href="{{#_org_monkshu_makeLink}}./login.html{{#url.appid}}?appid={{{.}}}{{/url.appid}}{{/_org_monkshu_makeLink}}">{{i18n.SignIn}}</a></span>
 </span>
 </div>
 
@@ -197,9 +196,9 @@ div.lgbox > span {
 	<p onclick="window.open(APP_CONSTANTS.APP_ABOUT_URL, '_blank')">{{i18n.learn}}</p>
 </div>
 
-<div class="lgbox">
+<div class="registerbox">
 	<span><br><br>{{i18n.RegisterMsg}}<br><br></span>
-	<register-box id="register" roles='["{{APP_CONSTANTS.GUEST_ROLE}}", "{{APP_CONSTANTS.USER_ROLE}}"]' 
+	<register-box id="register" 
 		routeOnSuccess="./main.html" type="register" minlength="{{APP_CONSTANTS.MIN_PASS_LENGTH}}"
 		dataOnSuccess='{"showDialog":{"message": "&#x7B;&#x7B;#needs_verification&#x7D;&#x7D;{{i18n.RegisterSuccessNeedsVerification}}&#x7B;&#x7B;/needs_verification&#x7D;&#x7D;&#x7B;&#x7B;^needs_verification&#x7D;&#x7D;{{i18n.RegisterSuccess}}&#x7B;&#x7B;/needs_verification}}"}}' 
 		routeOnNotApproved="./notapproved.html" 

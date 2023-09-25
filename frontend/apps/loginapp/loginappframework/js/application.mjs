@@ -35,13 +35,14 @@ const init = async hostname => {
 
 const main = async (desiredURL, desiredData) => {
 	await _addPageLoadInterceptors(); await _readConfig(); await _registerComponents();
-	const decodedURL = new URL(desiredURL || router.decodeURL(window.location.href)), justURL = util.baseURL(decodedURL);
+	const decodedURL = new URL(desiredURL || router.decodeURL(window.location.href)), 
+		justURL = util.baseURL(decodedURL), search = decodedURL.search;
 
-	if (justURL == APP_CONSTANTS.INDEX_HTML) router.loadPage(APP_CONSTANTS.REGISTER_HTML);
+	if (justURL == APP_CONSTANTS.INDEX_HTML) router.loadPage(APP_CONSTANTS.REGISTER_HTML+search);
 	else if (securityguard.isAllowed(justURL)) {
 		if (router.getLastSessionURL() && (decodedURL.toString() == router.getLastSessionURL().toString())) router.reload();
 		else router.loadPage(decodedURL.href, desiredData);
-	} else router.loadPage(APP_CONSTANTS.REGISTER_HTML);
+	} else router.loadPage(APP_CONSTANTS.REGISTER_HTML+search);
 }
 
 const interceptPageLoadData = _ => router.addOnLoadPageData("*", async (data, _url) => {

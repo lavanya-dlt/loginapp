@@ -18,6 +18,7 @@ export const APP_CONSTANTS = {
     EMBEDDED_APP_NAME, EMBEDDED_APP_PATH,
 
     MAIN_HTML: LOGINAPP_PATH+"/main.html",
+    REROUTE_HTML: LOGINAPP_PATH+"/reroute.html",
     LOGIN_HTML: LOGINAPP_PATH+"/login.html",
     INDEX_HTML: LOGINAPP_PATH+"/index.html",
     REGISTER_HTML: LOGINAPP_PATH+"/register.html",

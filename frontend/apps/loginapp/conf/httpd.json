@@ -4,13 +4,22 @@
     ],
     "redirects": [
         {
-            "^http(.*)://([^/]+?)/index.html$": "http{{{$1}}}://{{{$2}}}/apps/{{{appname}}}/loginappframework/index.html"
+            "^http(.*?)://([^/]+?)/index.html$": "http{{{$1}}}://{{{$2}}}/apps/{{{appname}}}/loginappframework/index.html"
         },
         {
-            "^http(.*)://([^/]+?)/$": "http{{{$1}}}://{{{$2}}}/apps/{{{appname}}}/loginappframework/index.html"
+            "^http(.*?)://([^/]+?)/$": "http{{{$1}}}://{{{$2}}}/apps/{{{appname}}}/loginappframework/index.html"
         },
         {
-            "^http(.*)://([^/]+?)$": "http{{{$1}}}://{{{$2}}}/apps/{{{appname}}}/loginappframework/index.html"
+            "^http(.*?)://([^/]+?)$": "http{{{$1}}}://{{{$2}}}/apps/{{{appname}}}/loginappframework/index.html"
+        },
+        {
+            "^http(.*?)://([^/]+?)/index.html\\?(.+?)$": "http{{{$1}}}://{{{$2}}}/apps/{{{appname}}}/loginappframework/index.html?{{{$3}}}"
+        },
+        {
+            "^http(.*?)://([^/]+?)/\\?(.+?)$": "http{{{$1}}}://{{{$2}}}/apps/{{{appname}}}/loginappframework/index.html?{{{$3}}}"
+        },
+        {
+            "^http(.*?)://([^/]+?)\\?(.+?)$": "http{{{$1}}}://{{{$2}}}/apps/{{{appname}}}/loginappframework/index.html?{{{$3}}}"
         }
     ],
     "diskCache": {

@@ -134,7 +134,14 @@ function startAutoLogoutTimer() { return;
     resetTimer();   // start the timing
 }
 
-const interceptPageLoad = _ => router.addOnLoadPage("*", startAutoLogoutTimer); 
+const interceptPageLoadData = _ => {
+    router.addOnLoadPage("*", startAutoLogoutTimer); 
+    router.addOnLoadPageData(APP_CONSTANTS.LOGIN_HTML, async data => {
+        const searchparams = new URL(router.getCurrentURL()).searchParams;
+        data.routeonsuccess = searchparams.get("appid") ?
+            `${APP_CONSTANTS.REROUTE_HTML}?appid=${searchparams.get("appid")}` : APP_CONSTANTS.MAIN_HTML;
+    });
+}
 
 const isAdmin = _ => session.get(APP_CONSTANTS.CURRENT_USERROLE).toString() == "admin";
 
@@ -144,7 +151,7 @@ const _stopAutoLogoutTimer = _ => {
 }
 
 export const loginmanager = {signin, reset, registerOrUpdate, logout, changepassword, startAutoLogoutTimer, 
-    addLogoutListener, getProfileData, checkResetSecurity, getSessionUser, interceptPageLoad, isAdmin,
+    addLogoutListener, getProfileData, checkResetSecurity, getSessionUser, interceptPageLoadData, isAdmin,
     ID_OK: 1, ID_FAILED_EXISTS: -4, ID_FAILED_OTP: -5, ID_OK_NOT_YET_APPROVED: -1, 
     ID_INTERNAL_ERROR: -2, ID_DB_ERROR: -3, ID_OK_NOT_YET_VERIFIED: 2, ID_FAILED_PASSWORD: -6, ID_FAILED_MISSING: -7,
     ID_SECURITY_ERROR: -8, ID_DOMAIN_ERROR: -9};

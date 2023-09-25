@@ -176,8 +176,6 @@ span#mobilefooter > img {
 			label="{{i18n.ChangePhone}}" icon="./img/changephone_menu.svg"></menu-item>
 		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.changeProfile(this)" 
 			label="{{i18n.ChangeProfile}}" icon="./img/changeprofile_menu.svg"></menu-item>
-		{{#admin}}<menu-item onclick="monkshu_env.frameworklibs.router.navigate(APP_CONSTANTS.MANAGE_HTML)" 
-			label="{{i18n.ManageUsersAndOrg}}" icon="./img/manageusers_menu.svg"></menu-item>{{/admin}}
 	</span-with-menu>
 	<span id="signoff"><img src="./img/poweroff.svg" onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.logoutClicked()"></span>
 	</span>
@@ -198,8 +196,6 @@ span#mobilefooter > img {
 			label="{{i18n.ChangePhone}}" icon="./img/changephone_menu.svg"></menu-item>
 		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.changeProfile(this)" 
 			label="{{i18n.ChangeProfile}}" icon="./img/changeprofile_menu.svg"></menu-item>
-		{{#admin}}<menu-item onclick="monkshu_env.frameworklibs.router.navigate(APP_CONSTANTS.MANAGE_HTML)" 
-			label="{{i18n.ManageUsersAndOrg}}" icon="./img/manageusers_menu.svg"></menu-item>{{/admin}}
 	</span-with-menu>
 	<img src="./img/mobilefooter_logout.svg" onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.logoutClicked()">
 </span>
