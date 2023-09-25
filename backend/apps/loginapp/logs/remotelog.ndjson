@@ -19,3 +19,6 @@
 {"ts":"2023:09:25:15:11:40","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
 {"ts":"2023:09:25:15:12:46","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
 {"ts":"2023:09:25:15:22:58","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:09:25:15:45:52","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:09:25:15:45:55","level":"info","message":"[192.168.10.78] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:09:25:15:46:47","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
