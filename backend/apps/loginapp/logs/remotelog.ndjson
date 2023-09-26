@@ -22,3 +22,20 @@
 {"ts":"2023:09:25:15:45:52","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
 {"ts":"2023:09:25:15:45:55","level":"info","message":"[192.168.10.78] Logout of user ID: thecompany@tekmonks.com."}
 {"ts":"2023:09:25:15:46:47","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:09:26:17:20:17","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:09:26:17:20:55","level":"error","message":"[192.168.10.78] Error in fetching https://192.168.10.78:9090/apps/loginapp/getjwttransfer for request {\"appname\":\"Test login\",\"onetimekey\":\"fnklfkejfklfmewklfewkfemkfem\"} of type GET due to 404: "}
+{"ts":"2023:09:26:17:21:05","level":"error","message":"[192.168.10.78] JWT transfer token call failed, unified login not possible."}
+{"ts":"2023:09:26:17:21:05","level":"info","message":"[192.168.10.78] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:09:26:17:24:42","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:09:26:17:30:25","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:09:26:17:30:25","level":"error","message":"[192.168.10.78] Bad login request from the requesting application."}
+{"ts":"2023:09:26:17:30:25","level":"info","message":"[192.168.10.78] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:09:26:17:31:11","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:09:26:17:31:30","level":"error","message":"[192.168.10.78] Bad login request from the requesting application."}
+{"ts":"2023:09:26:17:31:30","level":"info","message":"[192.168.10.78] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:09:26:17:41:38","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:09:26:17:42:42","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:09:27:03:45:16","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:09:27:03:45:19","level":"info","message":"[192.168.10.78] Logout of user ID: thecompany@tekmonks.com."}
+{"ts":"2023:09:27:03:45:58","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}
+{"ts":"2023:09:27:03:47:02","level":"info","message":"[192.168.10.78] Login succeeded for thecompany@tekmonks.com."}

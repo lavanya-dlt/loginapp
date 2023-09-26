@@ -3,4 +3,11 @@ Loginapp rerouter.
 (C) 2023 TekMonks. All rights reserved.
 -->
 <!doctype html>
-<html><head><script type="module">import {reroute} from "./js/reroute.mjs"; reroute.doroute();</script></head></html>
+<style>
+a#reroutelink {display: none;}
+a#reroutelink.visible {display: inline;}
+</style>
+<html>
+    <head><script type="module">import {reroute} from "./js/reroute.mjs"; reroute.doroute("a#reroutelink", "visible");</script></head>
+    <body><a id="reroutelink" href="">{{i18n.ClickToReroute}}</a></body>
+</html>

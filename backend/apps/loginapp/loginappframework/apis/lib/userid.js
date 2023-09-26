@@ -84,7 +84,7 @@ exports.checkPWPH = async (id, pwph) => {
 	return {...idEntry, result: pwphCompareResult, reason: exports.BAD_PASSWORD}; 
 }
 
-exports.existsID = exports.getTOTPSec = async id => {
+exports.existsID = exports.getTOTPSec = exports.lookupid = async id => {
 	const rows = await db.getQuery("SELECT * FROM users WHERE id = ? COLLATE NOCASE", [id]);
 	if (rows && rows.length) return {result: true, ...(rows[0])}; else return {result: false};
 }

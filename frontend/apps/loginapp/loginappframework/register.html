@@ -184,8 +184,8 @@ div.registerbox > span {
 	<img class="logo" src="./img/logo.svg" onclick="window.open(APP_CONSTANTS.APP_ABOUT_URL, '_blank')"></img>
 </span>
 <span id="signin">
-	<span><a href="{{#_org_monkshu_makeLink}}./register.html{{#url.appid}}?appid={{{.}}}{{/url.appid}}{{/_org_monkshu_makeLink}}">{{i18n.Register}}</a></span>
-	<span><a href="{{#_org_monkshu_makeLink}}./login.html{{#url.appid}}?appid={{{.}}}{{/url.appid}}{{/_org_monkshu_makeLink}}">{{i18n.SignIn}}</a></span>
+	<span><a href="{{#_org_monkshu_makeLink}}./register.html{{url.url_search}}{{/_org_monkshu_makeLink}}">{{i18n.Register}}</a></span>
+	<span><a href="{{#_org_monkshu_makeLink}}./login.html{{url.url_search}}{{/_org_monkshu_makeLink}}">{{i18n.SignIn}}</a></span>
 </span>
 </div>
 

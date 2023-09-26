@@ -119,5 +119,6 @@ export const i18n = {
 "ChangingSuborgsWillMigrateUsers": "WARNING: You have edited the list of suborganizations. This is a destructive operation that will also migrate users associated with the deleted suborganizations to the main organization. Press Cancel to avoid this. Press OK again to proceed.",
 "SomeUndeletableDomainsFound": "Undeletable domains found - {{domains}}. Please restore them as they have registered users or cancel.",
 "APIKeys": "API Keys",
-"OrgKeySetError": "Error initializing organization API keys. Please retry later or contact support for help."
+"OrgKeySetError": "Error initializing organization API keys. Please retry later or contact support for help.",
+"ClickToReroute": "Click here to continue."
 }

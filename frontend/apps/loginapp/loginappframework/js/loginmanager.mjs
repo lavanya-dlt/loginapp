@@ -9,8 +9,7 @@ import {session} from "/framework/js/session.mjs";
 import {securityguard} from "/framework/js/securityguard.mjs";
 import {apimanager as apiman} from "/framework/js/apimanager.mjs";
 
-const LOGOUT_LISTENERS = "__loginmanager_logout_listeners", 
-    TIMEOUT_CURRENT = "__loginmanager_timeout_current";
+const LOGOUT_LISTENERS = "__loginmanager_logout_listeners", TIMEOUT_CURRENT = "__loginmanager_timeout_current";
 
 async function signin(id, pass, otp) {
     const pwph = `${id} ${pass}`;
@@ -137,9 +136,9 @@ function startAutoLogoutTimer() { return;
 const interceptPageLoadData = _ => {
     router.addOnLoadPage("*", startAutoLogoutTimer); 
     router.addOnLoadPageData(APP_CONSTANTS.LOGIN_HTML, async data => {
-        const searchparams = new URL(router.getCurrentURL()).searchParams;
-        data.routeonsuccess = searchparams.get("appid") ?
-            `${APP_CONSTANTS.REROUTE_HTML}?appid=${searchparams.get("appid")}` : APP_CONSTANTS.MAIN_HTML;
+        const searchString = new URL(router.getCurrentURL()).search;
+        data.routeonsuccess = searchString && searchString.trim().length ? APP_CONSTANTS.REROUTE_HTML+searchString : 
+            APP_CONSTANTS.MAIN_HTML;
     });
 }
 

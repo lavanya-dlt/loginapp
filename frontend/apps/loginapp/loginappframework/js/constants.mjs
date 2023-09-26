@@ -47,6 +47,7 @@ export const APP_CONSTANTS = {
     API_VALIDATE_TOTP: API_PATH+"/validatetotp",
     API_GETTOTPSEC: API_PATH+"/gettotpsec",
     API_GETPROFILE: API_PATH+"/getprofile",
+    API_GETTRANSFERJWT: API_PATH+"/getjwttransfer",
     USERID: "userid",
     PWPH: "pwph",
     TIMEOUT: 600000,
@@ -56,6 +57,10 @@ export const APP_CONSTANTS = {
     USERORGDOMAIN: "userorgdomain",
     USER_NEEDS_VERIFICATION: "userneedsverification",
     LOGIN_RESPONSE: "loginresponse",
+
+    SEARCH_PARAM_APPNAME: "an", 
+    SEARCH_PARAM_ONETIMEKEY: "otk",
+    SEARCH_PARAM_REDIRECT: "rdr",
 
     USER_ROLE: "user",
     GUEST_ROLE: "guest",

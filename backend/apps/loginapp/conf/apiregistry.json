@@ -5,6 +5,8 @@
 
     
     "/apps/{{app}}/login" : "/loginappframework/apis/login.js?keys=fheiwu98237hjief8923ydewjidw834284hwqdnejwr79389&needsToken=false&addsToken=sub:{{{role}}},tokenflag:{{{tokenflag}}},id:{{{id}}},org:{{{org}}}",
+    "/apps/{{app}}/getjwttransfer" : "/loginappframework/apis/getjwttransfer.js?get=true&keys=fheiwu98237hjief8923ydewjidw834284hwqdnejwr79389&needsToken=true",
+    "/apps/{{app}}/validatejwt" : "/loginappframework/apis/validatejwt.js?get=true",
     "/apps/{{app}}/resetuser" : "/loginappframework/apis/resetuser.js?get=true&keys=fheiwu98237hjief8923ydewjidw834284hwqdnejwr79389&needsToken=false",
     "/apps/{{app}}/register" : "/loginappframework/apis/register.js?keys=fheiwu98237hjief8923ydewjidw834284hwqdnejwr79389&needsToken=false&addsToken=sub:{{{role}}},tokenflag:{{{tokenflag}}},id:{{{id}}},org:{{{org}}}",
     "/apps/{{app}}/adduserbyadmin" : "/loginappframework/apis/adduserbyadmin.js?keys=fheiwu98237hjief8923ydewjidw834284hwqdnejwr79389&needsToken=admin&checkClaims=org",
