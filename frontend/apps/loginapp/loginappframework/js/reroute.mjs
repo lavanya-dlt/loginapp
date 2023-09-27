@@ -51,7 +51,7 @@ async function doroute(reroutelink_id, visible_class) {
 
     const sendtolocation = `${redirect}?jwt=${jwtTransferResult.jwt}`, hrefElement = document.querySelector(reroutelink_id);
     hrefElement.href = sendtolocation; if (visible_class) hrefElement.classList.add(visible_class); 
-    window.location.replace(sendtolocation);
+    setTimeout(_=>window.location.replace(sendtolocation), APP_CONSTANTS.REDIRECT_AFTERLOGIN_TIMEOUT||5000);
 }
 
 export const reroute = {doroute};

@@ -1,6 +1,6 @@
 export const i18n = {
-"Title" : "Login App",
-"logintagline": "Enterprise Login Application",
+"Title" : "Unified Login",
+"logintagline": "Tekmonks Login",
 "loginsubtag": "Secure, integrated, and easy to use.",
 "learn":"Learn More",
 "Name": "नाम",
@@ -42,6 +42,8 @@ export const i18n = {
 "LoginReset" : "Click here to reset your account.",
 "LoginWasReset": "Reset instructions have been emailed to you",
 "LoginWasNotReset": "Unable to reset the account. Check with your company's administrator.", 
+"LoggedInMsg": "You have successfully logged in to the application",
+"LoggedInContinue": "Click here if you are not automatically re-routed in the next 5 seconds.",
 "NotApprovedMsg": "Your account is successfully registered, but not yet approved.<br><br>Please wait for your company’s administrator to approve it.",
 "FillField": "Please fill out this field.",
 "PWNOTSAME": "Passwords are not the same.",
