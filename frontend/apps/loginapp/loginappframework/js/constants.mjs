@@ -29,6 +29,7 @@ export const APP_CONSTANTS = {
     DOWNLOAD_HTML: LOGINAPP_PATH+"/download.html",
 
     DIALOGS_PATH: LOGINAPP_PATH+"/dialogs",
+    PAGES_PATH: LOGINAPP_PATH+"/pages",
 
     LOGINFRAMEWORK_LIB_PATH: LOGINAPP_PATH+"/js",
 

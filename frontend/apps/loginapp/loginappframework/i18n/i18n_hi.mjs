@@ -122,5 +122,7 @@ export const i18n = {
 "SomeUndeletableDomainsFound": "Undeletable domains found - {{domains}}. Please restore them as they have registered users or cancel.",
 "APIKeys": "API Keys",
 "OrgKeySetError": "Error initializing organization API keys. Please retry later or contact support for help.",
-"ClickToReroute": "Click here to continue."
+"ClickToReroute": "Click here to continue.",
+"ChangeAuthenticatorMessage": "Please download the Google Authenticator app on your phone. Scan this bar code to change to a new phone.",
+"UpdateSuccess": "Updated successfully."
 }

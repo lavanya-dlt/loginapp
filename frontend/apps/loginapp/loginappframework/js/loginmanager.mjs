@@ -46,8 +46,10 @@ async function signin(id, pass, otp) {
 
 const reset = id => apiman.rest(APP_CONSTANTS.API_RESET, "GET", {id, lang: i18n.getSessionLang()});
 
-async function registerOrUpdate(old_id, name, id, pass, org, totpSecret, totpCode, role, approved) {
-    const pwph = `${id} ${pass||session.get("__org_monkshu_cuser_pass")}`, isUpdate = old_id?true:false;
+async function registerOrUpdate(old_id, name=session.get(APP_CONSTANTS.USERNAME), id=session.get(APP_CONSTANTS.USERID), 
+        pass=session.get("__org_monkshu_cuser_pass"), org=session.get(APP_CONSTANTS.USERORG), 
+        totpSecret, totpCode, role=session.get(APP_CONSTANTS.CURRENT_USERROLE), approved) {
+    const pwph = `${id} ${pass}`, isUpdate = old_id?true:false;
 
     const req = {old_id, name, id: (isUpdate && session.get(APP_CONSTANTS.USERID))?session.get(APP_CONSTANTS.USERID):id, 
         pwph, org, totpSecret, totpCode, role, approved, lang: i18n.getSessionLang(), new_id: isUpdate?id:undefined}; 
@@ -117,7 +119,7 @@ async function checkResetSecurity() {
 }
 
 const getSessionUser = _ => { return {id: session.get(APP_CONSTANTS.USERID), name: session.get(APP_CONSTANTS.USERNAME),
-    org: session.get(APP_CONSTANTS.USERORG)} }
+    org: session.get(APP_CONSTANTS.USERORG), role: session.get(APP_CONSTANTS.CURRENT_USERROLE)}; }
 
 async function getProfileData(id, time) {
     const resp = await apiman.rest(APP_CONSTANTS.API_GETPROFILE, "GET", {id, time}, false, true);

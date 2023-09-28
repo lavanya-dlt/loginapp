@@ -15,5 +15,6 @@
     "verifyurl_safe_time_range_seconds": 10,
     "id_blacklist_mode": true,
     "id_whitelist_mode": true,
-    "transfer_token_timeout": 180000
+    "transfer_token_timeout": 180000,
+    "jwt_iss": "login.tekmonks.com"
 }

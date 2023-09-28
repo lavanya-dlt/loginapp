@@ -1,12 +1,34 @@
 /**
- * Returns JWT transfer token.
+ * Returns a JWT transfer token.
+ * 
+ * The JWT claims encodes the following. Any JWT decoder can be used to 
+ * decode JWT.
+ *   id - This is user's ID (usually their email)
+ *   name - The user's full name, as they typed during registration
+ *   org - The user's parent org
+ *   suborg - The user's sub org
+ *   role - The user's role within their org (admin or user)
+ *   approved - If true, the user has been approved by the org they 
+ *              belong to
+ *   verified - If true, the user has verified their email
+ *   onetimekey - The value of the otk param which was passed by caller
+ *   appname - The value of the an param which was passed by caller
+ *   iat - The issue time as UNIX epoch seconds (UTC)
+ *   exp - The time at which token will expire as UNIX epoch seconds (UTC)
+ *   iatms - The issue time as UNIX epoch milliseconds (UTC)
+ *   iss - Should be login.tekmonks.com or https://login.tekmonks.com
+ * 
+ * The token will auto-expire, typically, in 3 minutes, unless configured
+ * to last longer in the transfer_token_timeout property of the 
+ * <loginappframework>/conf/loginapp.json file.
+ * 
  * (C) 2022 TekMonks. All rights reserved.
  */
 
 const login = require(`${APP_CONSTANTS.API_DIR}/login.js`);
 const userid = require(`${APP_CONSTANTS.LIB_DIR}/userid.js`);
 
-const DEFAULT_TRANSFER_TOKEN_TIMEOUT = 180000;
+const DEFAULT_TRANSFER_TOKEN_TIMEOUT = 180000, DEFAULT_ISS = "login.tekmonks.com";
 
 exports.doService = async (jsonReq, _servObject, headers, _url, _apiconf) => {
 	if (!validateRequest(jsonReq)) {LOG.error("Validation failure."); return CONSTANTS.FALSE_RESULT;}
@@ -19,13 +41,15 @@ exports.doService = async (jsonReq, _servObject, headers, _url, _apiconf) => {
 	if (userdetails) LOG.info(`Sending transfer for ID ${id}.`); 
 	else {LOG.error(`Unable to locate user for ID ${id}, DB error.`); return CONSTANTS.FALSE_RESULT;}
 
-    const jwtTokenManager = APIREGISTRY.getExtension("jwtTokenManager");
+    const jwtTokenManager = APIREGISTRY.getExtension("jwtTokenManager"), tokenExpiryDelay = 
+		APP_CONSTANTS.CONF.transfer_token_timeout||DEFAULT_TRANSFER_TOKEN_TIMEOUT;
 	const token = jwtTokenManager.createSignedJWTToken({id: userdetails.id, name: userdetails.name, org: userdetails.org,
-        suborg: userdetails.suborg, approved: userdetails.approved == 1, verified: userdetails.verified == 1, 
-        onetimekey: jsonReq.onetimekey, appname: jsonReq.appname});
+        suborg: userdetails.suborg, role: userdetails.role, approved: userdetails.approved == 1, 
+		verified: userdetails.verified == 1, onetimekey: jsonReq.onetimekey, appname: jsonReq.appname, 
+		exp: Math.round((Date.now()+tokenExpiryDelay)/1000), iss: APP_CONSTANTS.CONF.jwt_iss||DEFAULT_ISS});
 
 	// expire all transfer tokens after a set timeout
-	setTimeout(_=>jwtTokenManager.releaseToken(token), APP_CONSTANTS.CONF.transfer_token_timeout||DEFAULT_TRANSFER_TOKEN_TIMEOUT);
+	setTimeout(_=>jwtTokenManager.releaseToken(token), tokenExpiryDelay);
     
     return {jwt: token, ...CONSTANTS.TRUE_RESULT};
 }

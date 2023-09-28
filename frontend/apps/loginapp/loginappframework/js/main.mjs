@@ -5,9 +5,7 @@
 import {i18n} from "/framework/js/i18n.mjs";
 import {loginmanager} from "./loginmanager.mjs"
 import {router} from "/framework/js/router.mjs";
-import {session} from "/framework/js/session.mjs";
 import {securityguard} from "/framework/js/securityguard.mjs";
-import {apimanager as apiman} from "/framework/js/apimanager.mjs";
 
 const dialog = _ => monkshu_env.components['dialog-box'], gohomeListeners = [];
 
@@ -24,46 +22,23 @@ function toggleMenu() {
     }
 }
 
-async function changePassword(_element) {
-    dialog().showDialog(`${APP_CONSTANTS.DIALOGS_PATH}/changepass.html`, true, true, {}, "dialog", ["p1","p2"], async result=>{
-        const done = await loginmanager.changepassword(session.get(APP_CONSTANTS.USERID), result.p1);
-        if (!done) dialog().error("dialog", await i18n.get("PWCHANGEFAILED"));
-        else { dialog().hideDialog("dialog"); showMessage(await i18n.get("PWCHANGED")); }
-    });
-}
-
-async function showOTPQRCode(_element) {
-    const id = session.get(APP_CONSTANTS.USERID).toString(); 
-    const totpSec = await apiman.rest(APP_CONSTANTS.API_GETTOTPSEC, "GET", {id}, true, false); if (!totpSec || !totpSec.result) return;
-    const qrcode = await _getTOTPQRCode(totpSec.totpsec);
-    dialog().showDialog(`${APP_CONSTANTS.DIALOGS_PATH}/changephone.html`, true, true, {img:qrcode}, "dialog", ["otpcode"], async result => {
-        const otpValidates = await apiman.rest(APP_CONSTANTS.API_VALIDATE_TOTP, "GET", {totpsec: totpSec.totpsec, otp:result.otpcode, id}, true, false);
-        if (!otpValidates||!otpValidates.result) dialog().error("dialog", await i18n.get("PHONECHANGEFAILED"));
-        else dialog().hideDialog("dialog");
-    });
-}
-
-async function changeProfile(_element) {
+async function updateProfile(name, newpassword) {
     const sessionUser = loginmanager.getSessionUser();
-    dialog().showDialog(`${APP_CONSTANTS.DIALOGS_PATH}/resetprofile.html`, true, true, sessionUser, "dialog", 
-            ["name", "id", "org"], async result => {
-        
-        const updateResult = await loginmanager.registerOrUpdate(sessionUser.id, result.name, result.id, null, result.org);
-        if (updateResult == loginmanager.ID_OK) dialog().hideDialog("dialog");
-        else {
-            let errorKey = "Internal"; switch (updateResult)
-            {
-                case loginmanager.ID_FAILED_EXISTS: errorKey = "Exists"; break;
-                case loginmanager.ID_FAILED_OTP: errorKey = "OTP"; break;
-                case loginmanager.ID_INTERNAL_ERROR: errorKey = "Internal"; break;
-                case loginmanager.ID_DB_ERROR: errorKey = "Internal"; break;
-                case loginmanager.ID_SECURITY_ERROR: errorKey = "SecurityError"; break;
-                case loginmanager.ID_DOMAIN_ERROR: errorKey = "DomainError"; break;
-                default: errorKey = "Internal"; break;
-            }
-            dialog().error("dialog", await i18n.get(`ProfileChangedFailed${errorKey}`));
+    const updateResult = await loginmanager.registerOrUpdate(sessionUser.id, name, sessionUser.id, newpassword, sessionUser.org);
+    if (updateResult != loginmanager.ID_OK) {
+        let errorKey = "Internal"; switch (updateResult)
+        {
+            case loginmanager.ID_FAILED_EXISTS: errorKey = "Exists"; break;
+            case loginmanager.ID_FAILED_OTP: errorKey = "OTP"; break;
+            case loginmanager.ID_INTERNAL_ERROR: errorKey = "Internal"; break;
+            case loginmanager.ID_DB_ERROR: errorKey = "Internal"; break;
+            case loginmanager.ID_SECURITY_ERROR: errorKey = "SecurityError"; break;
+            case loginmanager.ID_DOMAIN_ERROR: errorKey = "DomainError"; break;
+            default: errorKey = "Internal"; break;
         }
-    });
+        const errorMessage = await i18n.get(`ProfileChangedFailed${errorKey}`);
+        return {result: false, error: errorMessage};
+    } else return {result: true};
 }
 
 function showLoginMessages() {
@@ -88,23 +63,16 @@ async function gohome() {
     router.navigate(APP_CONSTANTS.MAIN_HTML);
 }
 
-async function showNotifications(action, event, bottom_menu) {
-    const notifications = await eval(action);
-    const context_menu = window.monkshu_env.components["context-menu"];
-    context_menu.showMenu("contextmenumain", notifications, event.clientX, event.clientY, bottom_menu?5:10, bottom_menu?5:10, 
-        null, true, bottom_menu, true);
-}
-
 const addGoHomeListener = listener => gohomeListeners.push(listener);
 
-async function _getTOTPQRCode(key) {
+async function getTOTPQRCode(key) {
 	const title = await i18n.get("Title");
 	await $$.require(`${APP_CONSTANTS.COMPONENTS_PATH}/register-box/3p/qrcode.min.js`);
 	return new Promise(resolve => QRCode.toDataURL(
 	    `otpauth://totp/${title}?secret=${key}&issuer=TekMonks&algorithm=sha1&digits=6&period=30`, (_, data_url) => resolve(data_url)));
 }
 
-const showMessage = message => dialog().showMessage(message, "dialog");
+const showMessage = message => new Promise(resolve => dialog().showMessage(message, "dialog", _=>resolve()));
 
-export const main = {toggleMenu, changePassword, showOTPQRCode, showLoginMessages, changeProfile, logoutClicked, 
-    interceptPageData, gohome, addGoHomeListener, showMessage, showNotifications}
+export const main = {toggleMenu, showLoginMessages, updateProfile, logoutClicked, interceptPageData, gohome, 
+    addGoHomeListener, showMessage, getTOTPQRCode}

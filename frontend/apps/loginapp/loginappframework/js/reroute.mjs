@@ -22,11 +22,16 @@
  *   name - The user's full name, as they typed during registration
  *   org - The user's parent org
  *   suborg - The user's sub org
+ *   role - The user's role within their org (admin or user)
  *   approved - If true, the user has been approved by the org they 
  *              belong to
  *   verified - If true, the user has verified their email
  *   onetimekey - The value of the otk param which was passed by caller
  *   appname - The value of the an param which was passed by caller
+ *   iat - The issue time as UNIX epoch seconds (UTC)
+ *   exp - The time at which token will expire as UNIX epoch seconds (UTC)
+ *   iatms - The issue time as UNIX epoch milliseconds (UTC)
+ *   iss - Should be login.tekmonks.com or https://login.tekmonks.com
  * 
  * (C) 2023 TekMonks. All rights reserved.
  * License: See enclosed license.txt file.

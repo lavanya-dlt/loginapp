@@ -62,9 +62,9 @@ function error(element, message) {
  * @param {string} hostID The ID of the host element for the dialog-box
  * @param {function} callback The callback function once OK is clicked, optional
  */
-const showMessage = (message, hostID, callback=_=>{}) => monkshu_env.components['dialog-box'].showDialog(
+const showMessage = (message, hostID, callback) => monkshu_env.components['dialog-box'].showDialog(
     `${COMPONENT_PATH}/templates/message.html`, true, false, {message}, hostID, [], 
-    _=> {monkshu_env.components['dialog-box'].hideDialog(hostID); callback();} );
+    _=> {monkshu_env.components['dialog-box'].hideDialog(hostID); if (callback) callback();} );
 
 /**
  * Hides the error being shown on the dialog
@@ -125,8 +125,8 @@ function _showDialogInternal(templateHTML, showOK, showCancel, hostID, retValIDs
 function _validateDialogInputs(retValIDs, shadowRoot) {
     const retVal = true;
     for (const retValId of retValIDs) {
-        const elementThis = shadowRoot.querySelector(`#${retValId}`);
-        if (elementThis) if (elementThis.checkValidity && (!elementThis.checkValidity())) {
+        const elementThis = shadowRoot.querySelector(`#${retValId}`), prototypeThis = Object.getPrototypeOf(elementThis);
+        if (elementThis) if ((typeof prototypeThis.checkValidity === "function") && (!elementThis.checkValidity())) {
             elementThis.reportValidity(); retVal = false; }
     }
     return retVal;
