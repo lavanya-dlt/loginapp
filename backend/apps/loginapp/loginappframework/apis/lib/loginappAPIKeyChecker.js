@@ -21,20 +21,23 @@ async function checkSecurity(apiregentry, _url, req, headers, _servObject, reaso
         reason.reason = "API Key Error"; reason.code = 403; return false; // loginapp uses org based keys for APIs
     }
 
-    const allJWTClaimsCheck = true; // if the request carries a proper JWT, then use the stronger JWT check.
-    if (apiregentry.query.loginapp_key_checker_enforce_for_jwt) for (const enforcedClaim of 
-            utils.escapedSplit(apiregentry.query.loginapp_key_checker_enforce_for_jwt, ",")) {
-    
-        if (enforcedClaim.trim() == "id" && login.getID(headers) != req.id) allJWTClaimsCheck = false;
-        if (enforcedClaim.trim() == "org" && login.getOrg(headers).toLowerCase() != req.org.toLowerCase()) allJWTClaimsCheck = false;
+    if (!await isAPIKeySecure(headers, req.org)) {  // first perform a basic API key check
+        LOG.error(`Incoming request ${JSON.stringify(req)} does not have a proper org key for the API.`);
+        reason.reason = "API Key Error"; reason.code = 403; return false;   // key not found in the headers
     }
-    if (allJWTClaimsCheck) return true; // request was properly JWT authorized, else all we can do next is an org key check
-    
-    LOG.warn(`Incoming request ${JSON.stringify(req)} for org ${req.org} is not carrying a proper JWT token, using weaker check to check for org keys only.`);
-    if (await isAPIKeySecure(headers, req.org)) return true;
 
-    LOG.error(`Incoming request ${JSON.stringify(req)} does not have a proper org key for the API.`);
-    reason.reason = "API Key Error"; reason.code = 403; return false;   // key not found in the headers
+    if (apiregentry.query.loginapp_key_checker_enforce_for_jwt) {   // if the request carries a proper JWT, then use the stronger JWT check.
+        let allJWTClaimsCheck = true; 
+        for (const enforcedClaim of utils.escapedSplit(apiregentry.query.loginapp_key_checker_enforce_for_jwt, ",")) {
+            if (enforcedClaim.trim() == "id" && login.getID(headers) != req.id) allJWTClaimsCheck = false;
+            if (enforcedClaim.trim() == "org" && login.getOrg(headers).toLowerCase() != req.org.toLowerCase()) allJWTClaimsCheck = false;
+        }
+        if (allJWTClaimsCheck) return true; // request was properly JWT authorized and key checks too
+        reason.reason = "JWT Claim Error"; reason.code = 403; return false;   // JWT claims failed and enforcement was requested
+    }
+    
+    LOG.warn(`Incoming request ${JSON.stringify(req)} for org ${req.org} is not carrying a proper JWT token, passed using weaker API key only check.`);
+    return true;
 }
 
 async function isAPIKeySecure(headers, org) {

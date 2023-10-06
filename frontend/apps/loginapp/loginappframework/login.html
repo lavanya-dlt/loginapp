@@ -1,20 +1,20 @@
 <style>
 @import url('./fonts/appfonts.css');
 
-body::-webkit-scrollbar {
+::-webkit-scrollbar {
     width: 0.5em !important;
     height: 0.5em !important;
     scroll-behavior: smooth !important;
 }
 
-body::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3) !important;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3) !important;
     margin: 5em;
     border-radius: 1em !important;
 }
 
-body::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
     background-color: darkgrey !important;
     border-radius: 1em !important;
     background-clip: padding-box;
@@ -24,7 +24,21 @@ body {
 	margin: 0; 
 	padding: 0; 
 	font-family: 'Red Hat Text'; 
-	background-color: rgb(79, 180, 237);
+	background-color: {{#url.bgc}}{{{.}}}{{/url.bgc}}{{^url.bgc}}rgb(79, 180, 237);{{/url.bgc}}
+}
+
+div#backimage {
+	background-image: url(./img/logob.svg);
+    opacity: 0.05;
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: 4em center;
+    background-size: 50%;
 }
 
 a:link {text-decoration:none; color:black;}    /* unvisited link */
@@ -37,20 +51,6 @@ div#bodydiv {
 	flex-direction: column;
 	justify-content: space-between;
 	min-height: 100%;
-}
-
-body::after {
-	content: "";
-	background: url(./img/logob.png);
-	background-size: auto 100%;
-	width: 100%;
-	height: 100%;
-	background-repeat: no-repeat;
-	opacity: 0.05;
-	position: absolute;
-	z-index: -1;   
-	top: 0;
-    left: 0;
 }
 
 div#header {
@@ -159,6 +159,7 @@ div.lgbox > span {
 	div#header {flex-direction: column-reverse; height: 6em;}
 	span#signin {text-align: center;}
 	.lgbox {padding: 1em; box-shadow: none;}
+	div#backimage {background-position: center 1em;}
 {{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_END}}}
 
 
@@ -171,21 +172,22 @@ div.lgbox > span {
 	<title>{{i18n.Title}}</title>
 	
 	<script type="module">
-	import "./components/login-box/login-box.mjs"; 
-	import "./components/dialog-box/dialog-box.mjs";
+	import {loginmanager} from "./js/loginmanager.mjs"; loginmanager.init();
 	import {language} from "./js/language.mjs"; window.language=language;
 	</script>
 </head>
 
 <body>
+<div id="backimage"></div>
+
 <div id="bodydiv">
 <div id="header">
 <span id="imgheader">
 	<img class="logo" src="./img/logo.svg" onclick="window.open(APP_CONSTANTS.APP_ABOUT_URL, '_blank')"></img>
 </span>
 <span id="signin">
-	<span><a href="{{#_org_monkshu_makeLink}}./register.html{{url.url_search}}{{/_org_monkshu_makeLink}}">{{i18n.Register}}</a></span>
-	<span><a href="{{#_org_monkshu_makeLink}}./login.html{{url.url_search}}{{/_org_monkshu_makeLink}}">{{i18n.SignIn}}</a></span>
+	<span><a href="{{#_org_monkshu_makeLink}}./register.html{{{url.url_search}}}{{/_org_monkshu_makeLink}}">{{i18n.Register}}</a></span>
+	<span><a href="{{#_org_monkshu_makeLink}}./login.html{{{url.url_search}}}{{/_org_monkshu_makeLink}}">{{i18n.SignIn}}</a></span>
 </span>
 </div>
 
@@ -200,7 +202,8 @@ div.lgbox > span {
 	<span><br><br>{{i18n.LoginMsg}}<br><br></span>
 	<login-box routeOnSuccess="{{{routeonsuccess}}}"
 		dataOnSuccessButNotVerified='{"showDialog":{"message": "&#x7B;&#x7B;#needs_verification&#x7D;&#x7D;{{i18n.LoginSuccessNeedsVerification}}&#x7B;&#x7B;/needs_verification&#x7D;&#x7D;&#x7B;&#x7B;^needs_verification&#x7D;&#x7D;{{i18n.RegisterSuccess}}&#x7B;&#x7B;/needs_verification}}"}}'
-		routeOnNotApproved="./notapproved.html" minlength="{{APP_CONSTANTS.MIN_PASS_LENGTH}}"></login-box>
+		routeOnNotApproved="./notapproved.html{{#url.bgc}}?bgc={{#_org_monkshu_encodeURIComponent}}{{{.}}}{{/_org_monkshu_encodeURIComponent}}{{/url.bgc}}" 
+		minlength="{{APP_CONSTANTS.MIN_PASS_LENGTH}}"></login-box>
 </div>
 </div>
 

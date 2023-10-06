@@ -25,7 +25,7 @@ exports.doService = async (jsonReq, servObject, headers) => {
         LOG.info(`User registered ${jsonReq.name}, ID: ${jsonReq.new_id}, by admin with ID: ${login.getID(headers)}, emailing them initial login instructions.`); 
 
         const cryptID = crypt.encrypt(jsonReq.new_id), cryptTime = crypt.encrypt(Date.now().toString()), 
-            action_url = APP_CONSTANTS.CONF.base_url + Buffer.from(`${APP_CONSTANTS.CONF.initiallogin_url}?e=${cryptID}&t=${cryptTime}`).toString("base64"),
+            action_url = APP_CONSTANTS.CONF.base_url + Buffer.from(`${APP_CONSTANTS.CONF.initiallogin_url}?e=${cryptID}&t=${cryptTime}${jsonReq.bgc?`&bgc=${jsonReq.bgc}`:""}`).toString("base64"),
             button_code_pre = mustache.render(template.button_code_pre, {action_url}), button_code_post = mustache.render(template.button_code_post, {action_url}),
             email_title = mustache.render(template[`${jsonReq.lang}_adduser_title`], {name: jsonReq.name, org, action_url}),
             email_html = mustache.render(template[`${jsonReq.lang}_adduser_email_html`], {name: jsonReq.name, org, button_code_pre, button_code_post}),

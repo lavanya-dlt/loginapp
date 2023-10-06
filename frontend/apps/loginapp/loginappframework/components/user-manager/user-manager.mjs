@@ -71,6 +71,7 @@ async function addUser(element) {
 		
 		if (ret.approved.toLowerCase() == "true") ret.approved = true; else ret.approved = false;
 		ret.org = session.get(conf.userorg_session_variable).toString(); ret.lang = i18n.getSessionLang(); 
+		ret.bgc = session.get(conf.userbackcolor_session_variable);
 		const backendURL = user_manager.getHostElement(element).getAttribute("backendurl");
 
 		const addResult = await _callBackendAPIShowingSpinner(`${backendURL}/${API_ADDUSER}`, ret);
@@ -98,7 +99,7 @@ async function editUser(name, old_id, role, approved, element) {
 				doNotAllowApproval:old_id==session.get(conf.userid_session_variable).toString()?true:undefined, 
 				COMPONENT_PATH}, "dialog", ["name", "new_id", "role", "approved", "old_id"], async ret => {
 		
-		const req = {...ret, approved: ret.approved.toLowerCase() == "true" ? true:false, 
+		const req = {...ret, approved: ret.approved.toLowerCase() == "true" ? true:false, bgc: session.get(conf.userbackcolor_session_variable),
 			id: session.get(conf.userid_session_variable).toString(), org: session.get(conf.userorg_session_variable).toString()}; 
 		const backendURL = user_manager.getHostElement(element).getAttribute("backendurl");
 		const editResult = await _callBackendAPIShowingSpinner(`${backendURL}/${API_EDITUSER}`, req);
@@ -217,7 +218,8 @@ async function _deleteUser(name, id, element) {
 async function _resetUser(name, id, element) {
 	_execOnConfirm(mustache_instance.render(await i18n.get("ConfirmUserReset"), {name, id}), async _ =>{
 		const backendURL = user_manager.getHostElement(element).getAttribute("backendurl"), lang = i18n.getSessionLang();
-		const resetResult = await apiman.rest(`${backendURL}/${API_RESETUSER}`, "GET", {id, lang}, true);
+		const resetResult = await apiman.rest(`${backendURL}/${API_RESETUSER}`, "GET", {id, lang, bgc: 
+			session.get(conf.userbackcolor_session_variable)}, true);
 		if (!resetResult?.result) {const err = mustache_instance.render(await i18n.get("ResetError"), {name, id}); LOG.error(err); _showError(err);}
 		else _showMessage(await i18n.get("ResetSuccess"));
 	});
@@ -226,7 +228,8 @@ async function _resetUser(name, id, element) {
 async function _approveUser(name, id, element) {
 	const backendURL = user_manager.getHostElement(element).getAttribute("backendurl");
 	const approveResult = await apiman.rest(`${backendURL}/${API_APPROVEUSER}`, "GET", {id, name,
-		lang: i18n.getSessionLang(), org: session.get(conf.userorg_session_variable).toString()}, true);
+		lang: i18n.getSessionLang(), org: session.get(conf.userorg_session_variable).toString(), 
+		bgc: session.get(conf.userbackcolor_session_variable)}, true);
 	if (!approveResult?.result) {
 		const err = mustache_instance.render(await i18n.get("ApproveError"), {name, id}); 
 		LOG.error(err); _showError(err);

@@ -54,25 +54,25 @@ exports.addUser = async (jsonReq, servObject, byAdmin=false) => {
 
 	result.tokenflag = result.result && result.approved == 1 ? true:false;
 	if (result.result) if (!_informNewUserListners(result)) {	// inform listeners and watch for a veto
-		LOG.error(`Listener veto for id ${id}, for org ${org}. Dropping the ID.`);
-		try {userid.deleteUser(id)} catch(_) {};	// try to drop the account
+		LOG.error(`Listener veto for id ${jsonReq.id}, for org ${jsonReq.org}. Dropping the ID.`);
+		try {userid.deleteUser(jsonReq.id)} catch(_) {};	// try to drop the account
 		return {...CONSTANTS.FALSE_RESULT, reason: REASONS.INTERNAL_ERROR};
 	}
 
 	if (result.result && verifyEmail) {	// send verification email
-		let mailVerificationResult = false; try{mailVerificationResult = await _emailAccountVerification(result.id, result.name, result.org, jsonReq.lang);} catch (err) {}
+		let mailVerificationResult = false; try{mailVerificationResult = await _emailAccountVerification(result.id, 
+			result.name, result.org, jsonReq.lang, jsonReq.bgc);} catch (err) {LOG.error(`Unable to register: ${jsonReq.name}, ID: ${result.id} verification email error ${err}.`);}
 		if (!mailVerificationResult) {
-			LOG.info(`Unable to register: ${jsonReq.name}, ID: ${jsonReq.id} verification email error.`); 
-			try {userid.deleteUser(id)} catch(_) {};	// try to drop the account
+			try {userid.deleteUser(result.id)} catch(err) {LOG.err(`Unable to delete user on verification email failure, id is ${jsonReq.id}. Manual DB cleanup is required.`)};	// try to drop the account
 			return {...CONSTANTS.FALSE_RESULT, reason: REASONS.INTERNAL_ERROR};
 		}
 	}
 
 	if (result.result) {
-		LOG.info(`User registered: ${jsonReq.name}, ID: ${jsonReq.id}, approval status is: ${result.approved==1?true:false}`); 
-		if (result.approved && (!byAdmin)) queueExecutor.add(userid.updateLoginStats, [jsonReq.id, Date.now(), 
+		LOG.info(`User registered: ${result.name}, ID: ${result.id}, approval status is: ${result.approved==1?true:false}`); 
+		if (result.approved && (!byAdmin)) queueExecutor.add(userid.updateLoginStats, [result.id, Date.now(), 
 			utils.getClientIP(servObject.req)], true, APP_CONSTANTS.CONF.login_update_delay||DEFAULT_QUEUE_DELAY);
-		if (!result.approved) queueExecutor.add(_emailAdminNewRegistration, [result.id, result.name, result.org, jsonReq.lang], 
+		if (!result.approved) queueExecutor.add(_emailAdminNewRegistration, [result.id, result.name, result.org, jsonReq.lang, jsonReq.bgc], 
 			true, DEFAULT_QUEUE_DELAY);
 	}
 	
@@ -125,9 +125,9 @@ exports.addNewUserListener = (modulePath, functionName) => {
 
 exports.REASONS = REASONS;
 
-async function _emailAccountVerification(id, name, org, lang) {
+async function _emailAccountVerification(id, name, org, lang, bgc) {
 	const cryptID = crypt.encrypt(id), cryptTime = crypt.encrypt(utils.getUnixEpoch().toString()), 
-        action_url = APP_CONSTANTS.CONF.base_url + Buffer.from(`${APP_CONSTANTS.CONF.verify_url}?e=${cryptID}&t=${cryptTime}`).toString("base64"),
+        action_url = APP_CONSTANTS.CONF.base_url + Buffer.from(`${APP_CONSTANTS.CONF.verify_url}?e=${cryptID}&t=${cryptTime}${bgc?`&bgc=${bgc}`:""}`).toString("base64"),
         button_code_pre = mustache.render(emailTemplate.button_code_pre, {action_url}), 
 			button_code_post = mustache.render(emailTemplate.button_code_post, {action_url}),
         email_title = mustache.render(emailTemplate[`${lang||"en"}_verifyemail_title`], {name, org, action_url}),
@@ -138,11 +138,11 @@ async function _emailAccountVerification(id, name, org, lang) {
 	return await mailer.email(id, email_title, email_html, email_text);
 }
 
-async function _emailAdminNewRegistration(id, name, org, lang) {
+async function _emailAdminNewRegistration(id, name, org, lang, bgc) {
 	const admins = await userid.getAdminsFor(id); if (!admins) {LOG.error(`No admins found for user ${id}, skipping notifying new registration for the org.`); return;}
 	for (const admin of admins) {	// email all admins that a new user has registered and needs approval
 		const email = admin.id, adminname = admin.name, 
-		action_url = APP_CONSTANTS.CONF.base_url + Buffer.from(APP_CONSTANTS.CONF.login_url).toString("base64"),
+		action_url = APP_CONSTANTS.CONF.base_url + Buffer.from(`${APP_CONSTANTS.CONF.login_url}${bgc?`?bgc=${bgc}`:""}`).toString("base64"),
 		button_code_pre = mustache.render(emailTemplate.button_code_pre, {action_url}), 
 		button_code_post = mustache.render(emailTemplate.button_code_post, {action_url}),
 		email_title = mustache.render(emailTemplate[`${lang||"en"}_newregistrationemail_title`], {adminname, org, name, id, action_url}),

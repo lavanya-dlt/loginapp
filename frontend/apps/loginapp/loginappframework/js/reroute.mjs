@@ -54,7 +54,8 @@ async function doroute(reroutelink_id, visible_class) {
     const jwtTransferResult = await apiman.rest(APP_CONSTANTS.API_GETTRANSFERJWT, "GET", {appname, onetimekey}, true, false); 
     if (!jwtTransferResult || !jwtTransferResult.result) {_doErrorLogout("JWT transfer token call failed, unified login not possible."); return;}
 
-    const sendtolocation = `${redirect}?jwt=${jwtTransferResult.jwt}`, hrefElement = document.querySelector(reroutelink_id);
+    const sendToURL = new URL(redirect), hrefElement = document.querySelector(reroutelink_id);
+    sendToURL.searchParams.set("jwt", jwtTransferResult.jwt); const sendtolocation = sendToURL.href;
     hrefElement.href = sendtolocation; if (visible_class) hrefElement.classList.add(visible_class); 
     setTimeout(_=>window.location.replace(sendtolocation), APP_CONSTANTS.REDIRECT_AFTERLOGIN_TIMEOUT||5000);
 }

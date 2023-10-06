@@ -11,11 +11,16 @@ import {apimanager as apiman} from "/framework/js/apimanager.mjs";
 
 const LOGOUT_LISTENERS = "__loginmanager_logout_listeners", TIMEOUT_CURRENT = "__loginmanager_timeout_current";
 
+function init() {
+    const currenturl = new URL(router.getCurrentURL()); 
+    if (currenturl.searchParams.get(APP_CONSTANTS.SEARCH_PARAM_BGC)) session.set(APP_CONSTANTS.SEARCH_PARAM_BGC, currenturl.searchParams.get(APP_CONSTANTS.SEARCH_PARAM_BGC));
+}
+
 async function signin(id, pass, otp) {
     const pwph = `${id} ${pass}`;
     session.set(LOGOUT_LISTENERS, []); // reset listeners on sign in
         
-    const resp = await apiman.rest(APP_CONSTANTS.API_LOGIN, "POST", {pwph, otp, id}, false, true);
+    const resp = await apiman.rest(APP_CONSTANTS.API_LOGIN, "POST", {pwph, otp, id, bgc: session.get(APP_CONSTANTS.SEARCH_PARAM_BGC)}, false, true);
     if (!resp) {LOG.warn(`Unknown reason for login failure for ${id}. Null response.`); return loginmanager.ID_INTERNAL_ERROR;}
     if (resp && resp.tokenflag) {   // login successful, JWT has been generated
         session.set(APP_CONSTANTS.USERID, resp.id); 
@@ -44,7 +49,7 @@ async function signin(id, pass, otp) {
     }
 }
 
-const reset = id => apiman.rest(APP_CONSTANTS.API_RESET, "GET", {id, lang: i18n.getSessionLang()});
+const reset = id => apiman.rest(APP_CONSTANTS.API_RESET, "GET", {id, lang: i18n.getSessionLang(), bgc: session.get(APP_CONSTANTS.SEARCH_PARAM_BGC)});
 
 async function registerOrUpdate(old_id, name=session.get(APP_CONSTANTS.USERNAME), id=session.get(APP_CONSTANTS.USERID), 
         pass=session.get("__org_monkshu_cuser_pass"), org=session.get(APP_CONSTANTS.USERORG), 
@@ -52,7 +57,8 @@ async function registerOrUpdate(old_id, name=session.get(APP_CONSTANTS.USERNAME)
     const pwph = `${id} ${pass}`, isUpdate = old_id?true:false;
 
     const req = {old_id, name, id: (isUpdate && session.get(APP_CONSTANTS.USERID))?session.get(APP_CONSTANTS.USERID):id, 
-        pwph, org, totpSecret, totpCode, role, approved, lang: i18n.getSessionLang(), new_id: isUpdate?id:undefined}; 
+        pwph, org, totpSecret, totpCode, role, approved, lang: i18n.getSessionLang(), new_id: isUpdate?id:undefined, 
+        bgc: session.get(APP_CONSTANTS.SEARCH_PARAM_BGC)}; 
     const resp = await apiman.rest(isUpdate?APP_CONSTANTS.API_UPDATE:APP_CONSTANTS.API_REGISTER, "POST", req, isUpdate?true:false, true);
     if (!resp) {LOG.error(`${isUpdate?"Update":"Registration"} failed for ${id} due to internal error. Null response.`); return loginmanager.ID_INTERNAL_ERROR;}
     else if (!resp.result) {    // registration failed, reasons can be bad OTP, ID exists or some internal error
@@ -151,7 +157,7 @@ const _stopAutoLogoutTimer = _ => {
     if (currTimeout) {clearTimeout(currTimeout); session.remove(TIMEOUT_CURRENT);} 
 }
 
-export const loginmanager = {signin, reset, registerOrUpdate, logout, changepassword, startAutoLogoutTimer, 
+export const loginmanager = {init, signin, reset, registerOrUpdate, logout, changepassword, startAutoLogoutTimer, 
     addLogoutListener, getProfileData, checkResetSecurity, getSessionUser, interceptPageLoadData, isAdmin,
     ID_OK: 1, ID_FAILED_EXISTS: -4, ID_FAILED_OTP: -5, ID_OK_NOT_YET_APPROVED: -1, 
     ID_INTERNAL_ERROR: -2, ID_DB_ERROR: -3, ID_OK_NOT_YET_VERIFIED: 2, ID_FAILED_PASSWORD: -6, ID_FAILED_MISSING: -7,
