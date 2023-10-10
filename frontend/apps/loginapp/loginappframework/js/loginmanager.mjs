@@ -142,12 +142,15 @@ function startAutoLogoutTimer() { return;
 }
 
 const interceptPageLoadData = _ => {
-    router.addOnLoadPage("*", startAutoLogoutTimer); 
-    router.addOnLoadPageData(APP_CONSTANTS.LOGIN_HTML, async data => {
-        const searchString = new URL(router.getCurrentURL()).search;
-        data.routeonsuccess = searchString && searchString.trim().length ? APP_CONSTANTS.REROUTE_HTML+searchString : 
+    const routeToCallerOnSuccessfulLoginAndRegistration = async data => {
+        const urlIncoming = new URL(router.getCurrentURL()), searchParams = urlIncoming.searchParams, search = urlIncoming.search;
+        data.routeonsuccess = searchParams.get(APP_CONSTANTS.SEARCH_PARAM_REDIRECT) ? APP_CONSTANTS.REROUTE_HTML+search : 
             APP_CONSTANTS.MAIN_HTML;
-    });
+    }
+
+    router.addOnLoadPage("*", startAutoLogoutTimer); 
+    router.addOnLoadPageData(APP_CONSTANTS.LOGIN_HTML, routeToCallerOnSuccessfulLoginAndRegistration);
+    router.addOnLoadPageData(APP_CONSTANTS.REGISTER_HTML, routeToCallerOnSuccessfulLoginAndRegistration);
 }
 
 const isAdmin = _ => session.get(APP_CONSTANTS.CURRENT_USERROLE).toString() == "admin";

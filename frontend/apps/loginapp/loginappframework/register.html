@@ -24,7 +24,6 @@ body {
 	margin: 0; 
 	padding: 0; 
 	font-family: 'Red Hat Text'; 
-	background-color: {{#url.bgc}}{{{.}}}{{/url.bgc}}{{^url.bgc}}rgb(79, 180, 237);{{/url.bgc}}
 }
 
 div#backimage {
@@ -77,14 +76,11 @@ span#signin {
 	flex-grow: 1;
 	text-transform: uppercase;
 }
-span#signin > span {padding-right: 3em;}
-span#signin > span:last-child {
+span#signin > span:nth-child(1) {
 	font-weight: 700;
 	padding-right: 0px;
-}
-span#signin > span:nth-child(2){
 	color: #ffca36;
-		
+	padding-right: 3em;
 }
 span#signin > span > a {
 	text-decoration: none;
@@ -156,6 +152,8 @@ div.registerbox > span {
 	font-size: x-small;
 }
 </style>
+{{{APP_CONSTANTS.CSS_STYLE_START}}}body{background-color: {{#url.bgc}}{{{.}}}{{/url.bgc}}{{^url.bgc}}rgb(79, 180, 237);{{/url.bgc}}}{{{APP_CONSTANTS.CSS_STYLE_END}}}
+
 {{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_START}}}
 	div#maincontent {flex-direction: column;}
 	div#header {flex-direction: column-reverse; height: 6em;}
@@ -202,7 +200,7 @@ div.registerbox > span {
 <div class="registerbox">
 	<span><br><br>{{i18n.RegisterMsg}}<br><br></span>
 	<register-box id="register" 
-		routeOnSuccess="./main.html" type="register" minlength="{{APP_CONSTANTS.MIN_PASS_LENGTH}}"
+		routeOnSuccess="{{{routeonsuccess}}}" type="register" minlength="{{APP_CONSTANTS.MIN_PASS_LENGTH}}"
 		dataOnSuccess='{"showDialog":{"message": "&#x7B;&#x7B;#needs_verification&#x7D;&#x7D;{{i18n.RegisterSuccessNeedsVerification}}&#x7B;&#x7B;/needs_verification&#x7D;&#x7D;&#x7B;&#x7B;^needs_verification&#x7D;&#x7D;{{i18n.RegisterSuccess}}&#x7B;&#x7B;/needs_verification}}"}}' 
 		routeOnNotApproved="./notapproved.html{{#url.bgc}}?bgc={{#_org_monkshu_encodeURIComponent}}{{{.}}}{{/_org_monkshu_encodeURIComponent}}{{/url.bgc}}" 
 		mobileQueries='{"start": "{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_START}}", "end": "{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_END}}"}',

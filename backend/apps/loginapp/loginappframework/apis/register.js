@@ -127,7 +127,7 @@ exports.REASONS = REASONS;
 
 async function _emailAccountVerification(id, name, org, lang, bgc) {
 	const cryptID = crypt.encrypt(id), cryptTime = crypt.encrypt(utils.getUnixEpoch().toString()), 
-        action_url = APP_CONSTANTS.CONF.base_url + Buffer.from(`${APP_CONSTANTS.CONF.verify_url}?e=${cryptID}&t=${cryptTime}${bgc?`&bgc=${bgc}`:""}`).toString("base64"),
+        action_url = APP_CONSTANTS.CONF.base_url + Buffer.from(`${APP_CONSTANTS.CONF.verify_url}?e=${encodeURIComponent(cryptID)}&t=${encodeURIComponent(cryptTime)}${bgc?`&bgc=${encodeURIComponent(bgc)}`:""}`).toString("base64"),
         button_code_pre = mustache.render(emailTemplate.button_code_pre, {action_url}), 
 			button_code_post = mustache.render(emailTemplate.button_code_post, {action_url}),
         email_title = mustache.render(emailTemplate[`${lang||"en"}_verifyemail_title`], {name, org, action_url}),
@@ -142,7 +142,7 @@ async function _emailAdminNewRegistration(id, name, org, lang, bgc) {
 	const admins = await userid.getAdminsFor(id); if (!admins) {LOG.error(`No admins found for user ${id}, skipping notifying new registration for the org.`); return;}
 	for (const admin of admins) {	// email all admins that a new user has registered and needs approval
 		const email = admin.id, adminname = admin.name, 
-		action_url = APP_CONSTANTS.CONF.base_url + Buffer.from(`${APP_CONSTANTS.CONF.login_url}${bgc?`?bgc=${bgc}`:""}`).toString("base64"),
+		action_url = APP_CONSTANTS.CONF.base_url + Buffer.from(`${APP_CONSTANTS.CONF.login_url}${bgc?`?bgc=${encodeURIComponent(bgc)}`:""}`).toString("base64"),
 		button_code_pre = mustache.render(emailTemplate.button_code_pre, {action_url}), 
 		button_code_post = mustache.render(emailTemplate.button_code_post, {action_url}),
 		email_title = mustache.render(emailTemplate[`${lang||"en"}_newregistrationemail_title`], {adminname, org, name, id, action_url}),

@@ -24,7 +24,6 @@ body {
 	margin: 0; 
 	padding: 0; 
 	font-family: 'Red Hat Text'; 
-	background-color: {{#url.bgc}}{{{.}}}{{/url.bgc}}{{^url.bgc}}rgb(79, 180, 237);{{/url.bgc}}
 }
 
 div#backimage {
@@ -154,6 +153,8 @@ div.lgbox > span {
 	font-size: x-small;
 }
 </style>
+{{{APP_CONSTANTS.CSS_STYLE_START}}}body{background-color: {{#url.bgc}}{{{.}}}{{/url.bgc}}{{^url.bgc}}rgb(79, 180, 237);{{/url.bgc}}}{{{APP_CONSTANTS.CSS_STYLE_END}}}
+
 {{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_START}}}
 	div#maincontent {flex-direction: column;}
 	div#header {flex-direction: column-reverse; height: 6em;}
@@ -200,10 +201,9 @@ div.lgbox > span {
 
 <div class="lgbox">
 	<span><br><br>{{i18n.LoginMsg}}<br><br></span>
-	<login-box routeOnSuccess="{{{routeonsuccess}}}"
+	<login-box routeOnSuccess="{{{routeonsuccess}}}" minlength="{{APP_CONSTANTS.MIN_PASS_LENGTH}}"
 		dataOnSuccessButNotVerified='{"showDialog":{"message": "&#x7B;&#x7B;#needs_verification&#x7D;&#x7D;{{i18n.LoginSuccessNeedsVerification}}&#x7B;&#x7B;/needs_verification&#x7D;&#x7D;&#x7B;&#x7B;^needs_verification&#x7D;&#x7D;{{i18n.RegisterSuccess}}&#x7B;&#x7B;/needs_verification}}"}}'
-		routeOnNotApproved="./notapproved.html{{#url.bgc}}?bgc={{#_org_monkshu_encodeURIComponent}}{{{.}}}{{/_org_monkshu_encodeURIComponent}}{{/url.bgc}}" 
-		minlength="{{APP_CONSTANTS.MIN_PASS_LENGTH}}"></login-box>
+		routeOnNotApproved="./notapproved.html{{#url.bgc}}?bgc={{#_org_monkshu_encodeURIComponent}}{{{.}}}{{/_org_monkshu_encodeURIComponent}}{{/url.bgc}}"></login-box>
 </div>
 </div>
 
