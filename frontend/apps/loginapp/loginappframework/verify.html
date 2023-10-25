@@ -191,7 +191,10 @@ span.link:hover {text-decoration: underline;}
 
 <div class="lgbox">
 	<span {{^emailVerified}}class="error"{{/emailVerified}}>{{emailVerifyMsg}}</span>
-	{{#emailVerified}}<span id="linklogin" onclick="window.location.replace(window.monkshu_env.frameworklibs.router.encodeURL('./login.html'))">{{i18n.ClickHereToContinueLogin}}</span>{{/emailVerified}}
+	{{#emailVerified}}<span id="linklogin" onclick="
+		const router = monkshu_env.frameworklibs.router, urlcurrent = new window.URL(router.getCurrentURL());
+		const urltogoto = `${APP_CONSTANTS.LOGIN_HTML}${urlcurrent.search}`; 
+		router.navigate(urltogoto);">{{i18n.ClickHereToContinueLogin}}</span>{{/emailVerified}}
 </div>
 </div>
 

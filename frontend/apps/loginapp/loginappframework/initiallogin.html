@@ -184,7 +184,7 @@ div.lgbox > span {
 		email="{{url.e}}" time="{{url.t}}" 
 		minlength="{{APP_CONSTANTS.MIN_PASS_LENGTH}}" routeOnSuccess="./main.html" 
 		dataOnSuccess='{"showDialog":{"message": "{{i18n.RegisterSuccess}}"}}'
-		routeOnNotApproved="./notapproved.html"
+		routeOnNotApproved="./notapproved.html{{#url.bgc}}?bgc={{#_org_monkshu_encodeURIComponent}}{{{.}}}{{/_org_monkshu_encodeURIComponent}}{{/url.bgc}}"
 		mobileQueries='{"start": "{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_START}}", "end": "{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_END}}"}'></register-box>
 </div>
 </div>

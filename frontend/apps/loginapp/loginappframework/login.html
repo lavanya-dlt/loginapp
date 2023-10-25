@@ -203,10 +203,9 @@ div.lgbox > span {
 
 <div class="lgbox">
 	<span><br><br>{{i18n.LoginMsg}}<br><br></span>
-	<login-box routeOnSuccess="{{{routeonsuccess}}}"
+	<login-box routeOnSuccess="{{{routeonsuccess}}}" minlength="{{APP_CONSTANTS.MIN_PASS_LENGTH}}"
 		dataOnSuccessButNotVerified='{"showDialog":{"message": "&#x7B;&#x7B;#needs_verification&#x7D;&#x7D;{{i18n.LoginSuccessNeedsVerification}}&#x7B;&#x7B;/needs_verification&#x7D;&#x7D;&#x7B;&#x7B;^needs_verification&#x7D;&#x7D;{{i18n.RegisterSuccess}}&#x7B;&#x7B;/needs_verification}}"}}'
-		routeOnNotApproved="./notapproved.html{{#url.bgc}}?bgc={{#_org_monkshu_encodeURIComponent}}{{{.}}}{{/_org_monkshu_encodeURIComponent}}{{/url.bgc}}" 
-		minlength="{{APP_CONSTANTS.MIN_PASS_LENGTH}}"></login-box>
+		routeOnNotApproved="./notapproved.html{{#url.bgc}}?bgc={{#_org_monkshu_encodeURIComponent}}{{{.}}}{{/_org_monkshu_encodeURIComponent}}{{/url.bgc}}"></login-box>
 </div>
 </div>
 
