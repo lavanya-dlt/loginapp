@@ -24,7 +24,6 @@ body {
     margin: 0; 
     padding: 0; 
     font-family: 'Red Hat Text'; 
-    background-color: {{#url.bgc}}{{{.}}}{{/url.bgc}}{{^url.bgc}}rgb(79, 180, 237);{{/url.bgc}}
 }
 
 div#backimage {
@@ -132,6 +131,10 @@ div.loggedinbox a#reroutelink.visible {visibility: visible;}
     font-size: x-small;
 }
 </style>
+{{{APP_CONSTANTS.CSS_STYLETAG_START}}}
+	body { background-color: {{#url.bgc}}{{{.}}}{{/url.bgc}}{{^url.bgc}}#4FB4ED;{{/url.bgc}} }
+{{{APP_CONSTANTS.CSS_STYLETAG_END}}}
+
 {{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_START}}}
     div#maincontent {flex-direction: column;}
     .loggedinbox {padding: 1em; box-shadow: none;}

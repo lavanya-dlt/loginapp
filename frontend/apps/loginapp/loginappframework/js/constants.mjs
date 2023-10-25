@@ -62,7 +62,11 @@ export const APP_CONSTANTS = {
     SEARCH_PARAM_APPNAME: "an", 
     SEARCH_PARAM_ONETIMEKEY: "otk",
     SEARCH_PARAM_REDIRECT: "rdr",
+
     SEARCH_PARAM_BGC: "bgc",
+    SESSION_VARIABLE_BGC: "bgc",
+
+    "DEFAULT_BGC": "#4FB4ED",
 
     USER_ROLE: "user",
     GUEST_ROLE: "guest",

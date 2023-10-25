@@ -26,7 +26,6 @@ body {
 	margin: 0; 
 	padding: 0; 
 	font-family: 'Red Hat Text'; 
-	background-color: {{#url.bgc}}{{{.}}}{{/url.bgc}}{{^url.bgc}}rgb(79, 180, 237);{{/url.bgc}}
 }
 
 div#backimage {
@@ -135,6 +134,10 @@ div.lgbox > span {
 	font-size: x-small;
 }
 </style>
+{{{APP_CONSTANTS.CSS_STYLETAG_START}}}
+	body { background-color: {{#url.bgc}}{{{.}}}{{/url.bgc}}{{^url.bgc}}#4FB4ED;{{/url.bgc}} }
+{{{APP_CONSTANTS.CSS_STYLETAG_END}}}
+
 {{{APP_CONSTANTS.MOBILE_MEDIA_QUERY_START}}}
 	div#maincontent {flex-direction: column;}
 	div#header {justify-content: space-around; height: 6em;}
