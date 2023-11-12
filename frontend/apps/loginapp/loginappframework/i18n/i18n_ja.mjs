@@ -124,5 +124,8 @@ export const i18n = {
 "OrgKeySetError": "Error initializing organization API keys. Please retry later or contact support for help.",
 "ClickToReroute": "Click here to continue.",
 "ChangeAuthenticatorMessage": "Please download the Google Authenticator app on your phone. Scan this bar code to change to a new phone.",
-"UpdateSuccess": "Updated successfully."
+"UpdateSuccess": "Updated successfully.",
+"GetLongTermToken": "Long-term login code",
+"Copy": "Copy",
+"Close": "Close"
 }

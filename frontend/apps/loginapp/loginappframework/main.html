@@ -161,12 +161,15 @@ span#mobilefooter > img {
 	<span id="name">{{i18n.Hi}} {{#_org_monkshu_session}}username{{/_org_monkshu_session}}!</span>
 	</span>
 	<span id="refresh"><img src="./img/reload.svg" onclick="location.reload()"></span>
-	{{#admin}}
+	
 	<span-with-menu id="gear" styleBody="url(./pages/menu.stylebody.css)"><img src="./img/settings.svg" style="height: 2em;width: 2em;vertical-align: middle;">
+		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.showLongTermToken(this)" 
+			label="{{i18n.GetLongTermToken}}" icon="./img/longlogincode_menu.svg"></menu-item>
+		{{#admin}}
 		<menu-item onclick="monkshu_env.frameworklibs.router.navigate(APP_CONSTANTS.MANAGE_HTML)" 
 			label="{{i18n.ManageUsersAndOrg}}" icon="./img/manageusers_menu.svg"></menu-item>
+		{{/admin}}
 	</span-with-menu>
-	{{/admin}}
 	<span id="signoff"><img src="./img/poweroff.svg" onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.logoutClicked()"></span>
 	</span>
 </span>
@@ -178,12 +181,14 @@ span#mobilefooter > img {
 <span id="mobilefooter">
 	<img src="./img/mobilefooter_home.svg" onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.gohome()">
 	<img src="./img/mobilefooter_reload.svg" onclick="location.reload()">
-	{{#admin}}
 	<span-with-menu id="gearmobile" bottommenu="true" styleBody="url(./pages/menu.stylebody.css)"><img src="./img/mobilefooter_settings.svg">
+		<menu-item onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.showLongTermToken(this)" 
+			label="{{i18n.GetLongTermToken}}" icon="./img/longlogincode_menu.svg"></menu-item>
+		{{#admin}}
 		<menu-item onclick="monkshu_env.frameworklibs.router.navigate(APP_CONSTANTS.MANAGE_HTML)" 
 			label="{{i18n.ManageUsersAndOrg}}" icon="./img/manageusers_menu.svg"></menu-item>
+		{{/admin}}
 	</span-with-menu>
-	{{/admin}}
 	<img src="./img/mobilefooter_logout.svg" onclick="monkshu_env.apps[APP_CONSTANTS.APP_NAME].main.logoutClicked()">
 </span>
 

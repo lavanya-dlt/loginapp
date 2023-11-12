@@ -1,6 +1,13 @@
 /**
  * Returns a JWT transfer token.
  * 
+ * The input is
+ * 	onetimekey - This is the app's one time key
+ * 	appname - This is the app's name
+ * 	transfer_token_timeout - This is the interval post which the token 
+ * 							 will expire. If not supplied a default of
+ * 							 3 minutes is used.
+ * 
  * The JWT claims encodes the following. Any JWT decoder can be used to 
  * decode JWT.
  *   id - This is user's ID (usually their email)
@@ -42,14 +49,11 @@ exports.doService = async (jsonReq, _servObject, headers, _url, _apiconf) => {
 	else {LOG.error(`Unable to locate user for ID ${id}, DB error.`); return CONSTANTS.FALSE_RESULT;}
 
     const jwtTokenManager = APIREGISTRY.getExtension("jwtTokenManager"), tokenExpiryDelay = 
-		APP_CONSTANTS.CONF.transfer_token_timeout||DEFAULT_TRANSFER_TOKEN_TIMEOUT;
+		jsonReq.transfer_token_timeout||APP_CONSTANTS.CONF.transfer_token_timeout||DEFAULT_TRANSFER_TOKEN_TIMEOUT;
 	const token = jwtTokenManager.createSignedJWTToken({id: userdetails.id, name: userdetails.name, org: userdetails.org,
         suborg: userdetails.suborg, role: userdetails.role, approved: userdetails.approved == 1, 
 		verified: userdetails.verified == 1, onetimekey: jsonReq.onetimekey, appname: jsonReq.appname, 
-		exp: Math.round((Date.now()+tokenExpiryDelay)/1000), iss: APP_CONSTANTS.CONF.jwt_iss||DEFAULT_ISS});
-
-	// expire all transfer tokens after a set timeout
-	setTimeout(_=>jwtTokenManager.releaseToken(token), tokenExpiryDelay);
+		expiryInterval: tokenExpiryDelay, iss: APP_CONSTANTS.CONF.jwt_iss||DEFAULT_ISS});
     
     return {jwt: token, ...CONSTANTS.TRUE_RESULT};
 }

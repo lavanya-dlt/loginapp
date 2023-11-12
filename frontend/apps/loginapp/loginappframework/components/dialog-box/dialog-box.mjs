@@ -14,8 +14,10 @@ let showHideInterceptor;
 /**
  * Shows a new dialog
  * @param {string} templatePath The template to use
- * @param {boolean} showOK Show OK button or not
- * @param {boolean} showCancel Show Cancel button or not
+ * @param {boolean} showOK Show OK button or not, can be true or false or a string. If a string is provided it will 
+ *                         also be used as the label for this button
+ * @param {boolean} showCancel Show Cancel button or not, can be true or false or a string. If a string is provided 
+ *                             it will also be used as the label for this button
  * @param {object} data The data to instantiate the template
  * @param {string} hostID The ID of the host element for the dialog-box
  * @param {array} retValIDs An array of element IDs from the template, whose values should be returned, can be null
@@ -117,6 +119,8 @@ function _showDialogInternal(templateHTML, showOK, showCancel, hostID, retValIDs
     if (!showOK) shadowRoot.querySelector("span#ok").style.display = "none";
     if (!showCancel) {shadowRoot.querySelector("span#cancel").style.display = "none"; shadowRoot.querySelector("span#close").style.display = "none";}
     if (!showOK || !showCancel) shadowRoot.querySelector("div#buttonbar").style.justifyContent = "space-around";
+    if (typeof showOK === "string") shadowRoot.querySelector("span#ok").textContent = showOK;
+    if (typeof showCancel === "string") shadowRoot.querySelector("span#cancel").textContent = showCancel;
     
     const memory = dialog_box.getMemory(hostID); memory.retValIDs = retValIDs; 
     memory.callback = callback; memory.callbackCancel = callbackCancel;

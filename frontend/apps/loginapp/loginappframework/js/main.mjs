@@ -6,6 +6,7 @@ import {i18n} from "/framework/js/i18n.mjs";
 import {loginmanager} from "./loginmanager.mjs"
 import {router} from "/framework/js/router.mjs";
 import {securityguard} from "/framework/js/securityguard.mjs";
+import {apimanager as apiman} from "/framework/js/apimanager.mjs";
 
 const dialog = _ => monkshu_env.components['dialog-box'], gohomeListeners = [];
 
@@ -72,7 +73,18 @@ async function getTOTPQRCode(key) {
 	    `otpauth://totp/${title}?secret=${key}&issuer=TekMonks&algorithm=sha1&digits=6&period=30`, (_, data_url) => resolve(data_url)));
 }
 
+async function showLongTermToken(_element) {
+    const jwtTransferResult = await apiman.rest(APP_CONSTANTS.API_GETTRANSFERJWT, "GET", 
+        {appname: APP_CONSTANTS.APP_NAME, onetimekey: Date.now()+Math.random().toString().split(".")[1], 
+            transfer_token_timeout: APP_CONSTANTS.LONG_TERM_JWT_EXPIRY}, true); 
+    if (!jwtTransferResult || !jwtTransferResult.result) {
+        _doErrorLogout("JWT transfer token call failed, unified login not possible."); return; }
+    
+    dialog().showDialog(`${APP_CONSTANTS.DIALOGS_PATH}/showjwt.html`, await i18n.get("Copy"), await i18n.get("Close"), 
+        {jwt: jwtTransferResult.jwt}, "dialog");
+}
+
 const showMessage = message => new Promise(resolve => dialog().showMessage(message, "dialog", _=>resolve()));
 
 export const main = {toggleMenu, showLoginMessages, updateProfile, logoutClicked, interceptPageData, gohome, 
-    addGoHomeListener, showMessage, getTOTPQRCode}
+    addGoHomeListener, showMessage, getTOTPQRCode, showLongTermToken}
