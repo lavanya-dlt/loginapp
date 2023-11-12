@@ -15,5 +15,5 @@
         "loginappframework/components/context-menu", "loginappframework/components/editable-list"],
     "APP_ABOUT_URL": "https://tekmonks.com/",
     "REDIRECT_AFTERLOGIN_TIMEOUT": 5000,
-    "LONG_TERM_JWT_EXPIRY": 7776000000
+    "LONG_TERM_JWT_EXPIRY": 7776000
 }
