@@ -14,3 +14,4 @@ exports.CONF_DIR = path.resolve(`${__dirname}/../../conf`);
 exports.DB_DIR = `${APP_ROOT}/db`;
 exports.ROLES = {ADMIN: "admin", USER: "user"};
 exports.ENV = {};   // enviornment for embedded apps to use
+exports.TOTP_NSF = "undefined"; // TOTP value to indicate no second factor is needed

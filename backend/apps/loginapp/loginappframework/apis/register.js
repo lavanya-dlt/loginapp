@@ -28,7 +28,7 @@ exports.addUser = async (jsonReq, servObject, byAdmin=false) => {
 		return {...CONSTANTS.FALSE_RESULT, reason: REASONS.DOMAIN_ERROR};
 	}
 
-	if ((!byAdmin) && (!totp.verifyTOTP(jsonReq.totpSecret, jsonReq.totpCode))) {	// verify TOTP for non admin registrations
+	if ((!byAdmin) && jsonReq.nsf !== true && (!totp.verifyTOTP(jsonReq.totpSecret, jsonReq.totpCode))) {	// verify TOTP for non admin registrations
 		LOG.error(`Unable to register: ${jsonReq.name}, ID: ${jsonReq.id}, wrong totp code`);
 		return {...CONSTANTS.FALSE_RESULT, reason: REASONS.OTP_ERROR};
 	}
@@ -47,7 +47,7 @@ exports.addUser = async (jsonReq, servObject, byAdmin=false) => {
 		role = byAdmin ? jsonReq.role : (existingUsersForThisUsersRootOrg?"user":"admin"), 
 		verifyEmail = byAdmin ? jsonReq.verifyEmail : (APP_CONSTANTS.CONF.verify_email_on_registeration ? 1 : 0);
 
-	const result = await userid.register(jsonReq.id, jsonReq.name, jsonReq.org, jsonReq.pwph, jsonReq.totpSecret, role, 
+	const result = await userid.register(jsonReq.id, jsonReq.name, jsonReq.org, jsonReq.pwph, jsonReq.totpSecret || APP_CONSTANTS.TOTP_NSF, role, 
 		approved, verifyEmail, jsonReq.domain);
 	if ((!result) || ((!result.result) && result.reason != userid.ID_EXISTS)) LOG.error(`Unable to register: ${jsonReq.name}, ID: ${jsonReq.id} DB error.`);
 	else if (!result.result) LOG.error(`Unable to register: ${jsonReq.name}, ID: ${jsonReq.id} exists already.`);
@@ -167,5 +167,8 @@ const _informNewUserListners = async result => {
 	}
 }
 
-const validateRequest = jsonReq => (jsonReq && jsonReq.pwph && jsonReq.id && jsonReq.name && jsonReq.org && 
-	jsonReq.totpSecret && jsonReq.totpCode && jsonReq.lang);
+const validateRequest = jsonReq => {
+    if (jsonReq && jsonReq.pwph && jsonReq.id && jsonReq.name && jsonReq.org && jsonReq.lang) {
+        if (jsonReq.nsf === true) return true; return jsonReq.totpSecret && jsonReq.totpCode;
+    } return false;
+};

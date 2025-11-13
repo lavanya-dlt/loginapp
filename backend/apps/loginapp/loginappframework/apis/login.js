@@ -50,9 +50,14 @@ exports.doService = async (jsonReq, servObject) => {
 
 	result.tokenflag = false; 	// default assume login failed no JWT token will be generated
 	if (result.result && result.approved) {	// perform second factor
+		//nsf flag is to allow login without second factor
+		if (jsonReq?.nsf === true || result.totpsec === APP_CONSTANTS.TOTP_NSF) { result.result = true; result.tokenflag = true; result.reason = REASONS.OK;
+			LOG.info(`User ${result.id} logged in with MFA bypassed.`);
+		} else {
 		result.result = totp.verifyTOTP(result.totpsec, jsonReq.otp); 
 		if (!result.result) {LOG.error(`Bad OTP given for: ${result.id}.`); result.reason = REASONS.BAD_OTP;}
 		else {result.tokenflag = true; result.reason = REASONS.OK;}	// ID is OK, password is OK, OTP is OK, and user is approved
+		}
 	} else if (result.result && (!result.approved)) {LOG.info(`User not approved, ${result.id}.`); result.reason = REASONS.BAD_APPROVAL;}
 	else {
 		result.reason = result.reason == userid.NO_ID ? REASONS.BAD_ID : result.reason == userid.BAD_PASSWORD ? REASONS.BAD_PASSWORD : REASONS.UNKNOWN;
@@ -122,4 +127,6 @@ const _informLoginListeners = async result => {
 	}
 }
 
-const validateRequest = jsonReq => (jsonReq && jsonReq.pwph && jsonReq.otp && jsonReq.id);
+const validateRequest = jsonReq => { 
+	if (jsonReq && jsonReq.pwph && jsonReq.id) { if (jsonReq?.nsf === true) return true; return jsonReq.otp !== undefined;} return false;
+};
